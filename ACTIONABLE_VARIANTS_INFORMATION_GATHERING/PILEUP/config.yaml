@@ -1,0 +1,2 @@
+reference_genome: path
+bamfile_list: path to a list of bamfiles (one bamfile per line)
