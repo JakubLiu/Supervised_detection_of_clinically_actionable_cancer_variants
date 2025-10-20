@@ -32,6 +32,7 @@ screen -S snake_screen
 snakemake --snakefile Mpileup_Snakemake.smk --configfile config.yaml --profile=cubi-v1 --jobs 1
 ```
 Make sure the an appropriate conda evironment is activated!
+Make sure that in the new screen you are also on a compute node!
 For more information go to: https://hpc-docs.cubi.bihealth.org/slurm/snakemake/
 
 Then you can let Snakemake run in the background and detach from the screen ```ctrl+a d```.
