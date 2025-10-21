@@ -1,4 +1,7 @@
 # How to run
+#### 0.) create the environment based on
+```save_the_environment.yaml```
+
 #### 1.) define the list of bamfiles
 - save the paths to the bamfiles in a .txt file
 - one bamfile path per line
