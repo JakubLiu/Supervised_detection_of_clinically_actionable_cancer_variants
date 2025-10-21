@@ -1,2 +1,3 @@
-reference_genome: path
-bamfile_list: path to a list of bamfiles (one bamfile per line)
+reference_genome: /data/cephfs-1/work/groups/cubi/projects/biotools/static_data_by_ref/GRCh38.d1.vd1/reference/GRCh38.d1.vd1.fa
+bamfile_list: /data/cephfs-1/home/users/jali13_c/work/ACTIONABLES_INFO_GATHER/MPILEUP/bamlist.txt
+regions_bed: /data/cephfs-1/home/users/jali13_c/work/ACTIONABLES_INFO_GATHER/MPILEUP/SNAKEMAKE/regions_of_interest.bed

@@ -1,5 +1,7 @@
 import numpy as np
 import pandas as pd
+import gc
+import gzip
 
 # function definitions _________________________________________________________________________________________________
 def split_line(line):
@@ -19,28 +21,6 @@ def split_line(line):
         end = end + 4
         
     return splitted_rows
-
-
-
-
-def split_multibam_pileup(pileup_f):
-
-    with open(pileup_f, 'r') as file:
-    
-        output = []
-        for line in file:
-            
-            line = line.strip()
-            lines_splitted = split_line(line)
-            
-            for sample in lines_splitted:
-                output.append(list(sample))
-
-    output = pd.DataFrame(output)
-    output.columns = ['chromosome', 'position', 'ref', 'sample', 'coverage', 'reads']
-    return output
-
-
 
 
 
@@ -109,25 +89,42 @@ def translator(seq_in, ref):
 
 
 
-def process_pileup(pileup_file):
+def process_pileup(raw_pileup_file_path, output_file_path):
     
-    splitted_pileup_file = split_multibam_pileup(pileup_file)
-    reads_bases = np.zeros(splitted_pileup_file.shape[0], dtype = object)
-    n_alternative_bases = np.full(splitted_pileup_file.shape[0], -9, dtype = np.int64)
+    with open(raw_pileup_file_path, "r", encoding='utf-8') as infile, \
+        open(output_file_path, "w", encoding="utf-8") as outfile:
 
-    i = 0
-    for sequence in splitted_pileup_file['reads']:
-        reference_base = splitted_pileup_file.iloc[i,2]
-        reads_bases[i], n_alternative_bases[i] = translator(sequence, reference_base)
-        i += 1
+        outfile.write('CHROM,POS,REF,SAMPLE,COVERAGE,READ_BASES,N_ALT_BASES' + '\n') # write the header
 
-    splitted_pileup_file["bases_sequence"] = reads_bases
-    splitted_pileup_file["n_alt_reads"] = n_alternative_bases
-    return splitted_pileup_file
+        # iterate over the lines of the input file, do some stuff and write that processed line to disc
+        for line in infile:  # here one line has multiple samples
+            
+            line = line.strip()
+            lines_splitted = split_line(line)
+
+            # iterate over the samples in each line of the input file
+            for sample in lines_splitted:    # here one line is one sample
+                raw_sequence = sample[-1]
+                translated_sequence, n_alternative_bases = translator(raw_sequence, sample[2])
+                output_line = sample[:-1] + [translated_sequence, n_alternative_bases]
+                output_line = ','.join([str(element) for element in output_line])  # change every element of the list to a string and then change the list to a string (sep=',')
+                outfile.write(output_line + '\n') # write a single line/sample to disc
+
+                # garbage collection just to make sure
+                del raw_sequence
+                del translated_sequence
+                del n_alternative_bases
+                del output_line
+            
+            # garbage collection just to make sure
+            del line
+            del lines_splitted
+            gc.collect()
 
 
 
 # usage ______________________________________________________________________________________________________________________________-
 
-result = process_pileup(snakemake.input[0])
-result.to_csv(snakemake.output[0], index = False)
+process_pileup(raw_pileup_file_path=snakemake.input[0],
+               output_file_path=snakemake.output[0])
+
