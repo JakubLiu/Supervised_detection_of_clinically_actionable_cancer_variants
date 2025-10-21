@@ -33,3 +33,8 @@ chr18;23749385;C;T,1,1,0
 chr19;2918473;G;A,1,0,0
 chr20;58473821;A;C,0,1,1
 ```
+
+# How to run
+```
+python3 MultiVcfVariantCompilation.py --input <vcf file list> --output <your output csv file name>
+```
