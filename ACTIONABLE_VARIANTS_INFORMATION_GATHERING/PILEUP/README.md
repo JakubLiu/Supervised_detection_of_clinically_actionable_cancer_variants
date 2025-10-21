@@ -1,40 +1,58 @@
-This Snakemake script first creates a samtools mpileup based on a list of bam files. Then it edits this mpileup to a more readable form.
-We need to run this script as a slurm job. Below it is said how to do it.
+# How to run
+#### 1.) define the list of bamfiles
+- save the paths to the bamfiles in a .txt file
+- one bamfile path per line
 
-**1.) define the resources within each rule of the snakefile**
-
+#### 2.) define the regions of interest
+- they must be stored in the .bed format
+- three columns: chromosome, start, stop, tab delimited
+- example:
 ```
-rule samtools_mpileup:
-    input:
-        ref_gen = reference_genome,
-        bamlist = bamfile_list
-    output:
-        'samtools_mpileup/pileup_raw.txt'
-
-    resources:
-        mem='60G',         # LOOK HERE !!!
-        time='20:00:00'    # LOOK HERE !!!
-
-    shell:
-        '''
-        samtools mpileup -f {input.ref_gen} -b {input.bamlist} -s > {output}
-        '''
+                    chr1    100   102
+                    chr2    12    132
 ```
 
-**2.) Go onto a login node, open/attach to a screen**
+#### 3.) define the config file (in the .yaml) format. It must contain these elements
+- the path to the reference genome
+- the path to the list of bamfiles
+- the path to the regions .bed file
 
+#### 4.) run Snakemake
 ```
-screen -S snake_screen
+            snakemake --snakefile Mpileup_Snakemake.smk --configfile <your config.yaml> --profile=cubi-v1 --jobs 1
 ```
-**3.) Inside the screen run**
 
-```
-snakemake --snakefile Mpileup_Snakemake.smk --configfile config.yaml --profile=cubi-v1 --jobs 1
-```
-Make sure the an appropriate conda evironment is activated!
-Make sure that in the new screen you are also on a compute node!
-For more information go to: https://hpc-docs.cubi.bihealth.org/slurm/snakemake/
+- if you get an error you might need to re-run the command with the additional ```--unlock``` flag and then rerun the previous command again.
+- ```profile=cubi-v1``` is specific for the BIH HPC
 
-Then you can let Snakemake run in the background and detach from the screen ```ctrl+a d```.
-You can reattach to the screen: ```screen -r snake_screen``` or check all available screens: ```screen -ls```.
-Do remove a screen you can attach to it and when within the screen type ```exit```.
+# Where to run in (BIH HPC specific)
+Since this snakemake pipeline is being run via slurm there are some steps that need to be done.
+
+#### 1.) on a login node create a dedicated screen
+```screen -S snakescreen```
+#### 2.) when inside that screen move to a compute node
+#### 3.) from within the compute node run the pipeline as shown above
+#### 4.) optionally detach from the screen
+```ctrl+a d```
+#### 5.) optionally reattach to the screen
+```screen -r snakescreen```
+
+# Example setup
+#### bamfile list
+```
+path/to/sample.bam
+path/to/sample2.bam
+```
+#### regions bedfile
+```
+chr1    100   102
+chr2    12    132
+```
+#### example output
+```
+CHROM,POS,REF,SAMPLE,COVERAGE,READ_BASES,N_ALT_BASES
+chr1,100,A,sample1,2,AA,0
+chr1,100,A,sample2,2,CA,1
+chr2,96,T,sample1,5,TTTTT,0
+chr2,96,T,sample2,5,TCCTT,2
+```
