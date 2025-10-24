@@ -59,3 +59,9 @@ chr1,100,A,sample2,2,CA,1
 chr2,96,T,sample1,5,TTTTT,0
 chr2,96,T,sample2,5,TCCTT,2
 ```
+
+# Other important things
+- the .bed file must be zero based and the end position must be greater than the start position
+- for example if we would want to encode the first position that is a 1-basepair mutation we would encode it as ```chr1  0  1```
+- moreover the chromosome identifiers must match between the .bed and the .bam files (sometimes chromosome posess the "chr" prefix and sometimes they do not)
+- obviously the .bed and .bam files must be based on the same reference genome
