@@ -1,8 +1,8 @@
 # paths (to the bam files) can be absolute or relative
 bam_files:
-  - /data/cephfs-1/home/users/jali13_c/work/ACTIONABLES_INFO_GATHER/READ_SUBSAMPLING/TEST/data/bams/A.bam
-  - /data/cephfs-1/home/users/jali13_c/work/ACTIONABLES_INFO_GATHER/READ_SUBSAMPLING/TEST/data/bams/B.bam
-  - /data/cephfs-1/home/users/jali13_c/work/ACTIONABLES_INFO_GATHER/READ_SUBSAMPLING/TEST/data/bams/C.bam
+  - data/bams/A.bam
+  - data/bams/B.bam
+  - bams/C.bam
 
 # percentage of reads to keep
 proportion_reads_to_keep:
@@ -10,4 +10,4 @@ proportion_reads_to_keep:
   - 0.5
   - 0.7
 
-reference_genome: /data/cephfs-1/home/users/jali13_c/work/ACTIONABLES_INFO_GATHER/READ_SUBSAMPLING/TEST/data/genome.fa
+reference_genome: data/genome.fa
