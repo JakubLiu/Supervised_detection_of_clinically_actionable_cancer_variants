@@ -8,7 +8,7 @@ bamfiles = config['bam_files']
 subsample_proportions = config['proportion_reads_to_keep']
 ref = config['reference_genome']
 
-# this rule (the expand command) defines all the (file x proportion) combinations that need to be created by the other rules
+
 rule all:
     input:
         expand(
@@ -19,23 +19,24 @@ rule all:
 
 
 rule subsample_sort_index:
-    output:
-        bam = "subsampled_reads/{bam_basename}_proportion_reads_kept_{prop}.bam",
-        bai = "subsampled_reads/{bam_basename}_proportion_reads_kept_{prop}.bam.bai"
+  resources:
+    mem_mb = 32000
 
-    input:
-        lambda wildcards: next(
-            f for f in bamfiles if extract_basename(f) == wildcards.bam_basename
-        )
+  output:
+    bam = "subsampled_reads/{bam_basename}_proportion_reads_kept_{prop}.bam",
+    bai = "subsampled_reads/{bam_basename}_proportion_reads_kept_{prop}.bam.bai"
 
-    params:
-        prop = "{prop}"
+  input:
+    lambda wildcards: next(f for f in bamfiles if extract_basename(f) == wildcards.bam_basename)
 
-    shell:
-        """
-        samtools view -s {params.prop} -b {input} | samtools sort -o {output.bam}
-        samtools index {output.bam}
-        """
+  params:
+    prop = "{prop}"
+
+  shell:
+    """
+    samtools view -s {params.prop} -b {input} | samtools sort -o {output.bam}
+    samtools index {output.bam}
+    """
 
 
 rule mutect2_call:
