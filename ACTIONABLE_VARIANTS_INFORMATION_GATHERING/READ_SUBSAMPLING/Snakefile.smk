@@ -40,37 +40,42 @@ rule subsample_sort_index:
 
 
 rule mutect2_call:
-    input:
-        bam = "subsampled_reads/{bam_basename}_proportion_reads_kept_{prop}.bam",
-        bai = "subsampled_reads/{bam_basename}_proportion_reads_kept_{prop}.bam.bai"
+  resources:
+    mem_mb=32000
+  input:
+    bam = "subsampled_reads/{bam_basename}_proportion_reads_kept_{prop}.bam",
+    bai = "subsampled_reads/{bam_basename}_proportion_reads_kept_{prop}.bam.bai"
 
-    output:
-        vcf = "raw_mutect2_calls/{bam_basename}_proportion_reads_kept_{prop}.unfiltered.vcf.gz"
+  output:
+    vcf = "raw_mutect2_calls/{bam_basename}_proportion_reads_kept_{prop}.unfiltered.vcf.gz"
 
-    params:
-        threads = 8,
-        ref = ref
+  params:
+    threads = 8,
+    ref = ref
 
-    shell:
-        """
-        gatk Mutect2 \
-            -R {params.ref} \
-            -I {input.bam} \
-            -O {output.vcf} \
-            --native-pair-hmm-threads {params.threads}
-        """
+  shell:
+    """
+    gatk Mutect2 \
+          -R {params.ref} \
+          -I {input.bam} \
+          -O {output.vcf} \
+          --native-pair-hmm-threads {params.threads}
+    """
 
 
 rule mutect2_filter:
-    input:
-        vcf = "raw_mutect2_calls/{bam_basename}_proportion_reads_kept_{prop}.unfiltered.vcf.gz",
-        ref = ref
+  resources:
+    mem_mb=32000
 
-    output:
-        vcf = "filtered_mutect2_calls/{bam_basename}_proportion_reads_kept_{prop}.filtered.vcf.gz"
+  input:
+    vcf = "raw_mutect2_calls/{bam_basename}_proportion_reads_kept_{prop}.unfiltered.vcf.gz",
+    ref = ref
 
-    shell:
-        """
-        gatk FilterMutectCalls -R {input.ref} -V {input.vcf} -O {output.vcf}
-        """
+  output:
+    vcf = "filtered_mutect2_calls/{bam_basename}_proportion_reads_kept_{prop}.filtered.vcf.gz"
+
+  shell:
+    """
+    gatk FilterMutectCalls -R {input.ref} -V {input.vcf} -O {output.vcf}
+    """
 
