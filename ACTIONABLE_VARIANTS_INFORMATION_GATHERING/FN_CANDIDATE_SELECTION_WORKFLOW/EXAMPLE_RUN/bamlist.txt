@@ -1,3 +1,3 @@
-/data/cephfs-1/home/users/jali13_c/work/ACTIONABLES_INFO_GATHER/FULL_WORKFLOW/PLAYGROUND/data/samples/A.bam
-/data/cephfs-1/home/users/jali13_c/work/ACTIONABLES_INFO_GATHER/FULL_WORKFLOW/PLAYGROUND/data/samples/B.bam
-/data/cephfs-1/home/users/jali13_c/work/ACTIONABLES_INFO_GATHER/FULL_WORKFLOW/PLAYGROUND/data/samples/C.bam
+data/samples/A.bam
+data/samples/B.bam
+data/samples/C.bam
