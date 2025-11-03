@@ -1,0 +1,20 @@
+bamfile_list:
+  - data/samples/A.bam
+  - data/samples/B.bam
+  - data/samples/C.bam
+
+reference_genome: /data/cephfs-1/home/users/jali13_c/work/ACTIONABLES_INFO_GATHER/FULL_WORKFLOW/PLAYGROUND/data/genome.fa
+
+actionable_variants_bed: /data/cephfs-1/home/users/jali13_c/work/ACTIONABLES_INFO_GATHER/FULL_WORKFLOW/PLAYGROUND/data/actionable_variants.bed
+
+cutoffs:
+  - 0.01
+  - 0.05
+
+coverages:
+  - 0.25
+  - 0.50
+
+sample_proportions:  # for this we need to know how many samples we have in total
+  - 1        # not called in 1 out of the total number of samples
+  - 2        # not called in 2 out of the total number of samples

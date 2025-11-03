@@ -1,0 +1,6 @@
+filtered_mutect2_calls/A_proportion_reads_kept_0.25.vcf.gz
+filtered_mutect2_calls/A_proportion_reads_kept_0.5.vcf.gz
+filtered_mutect2_calls/B_proportion_reads_kept_0.25.vcf.gz
+filtered_mutect2_calls/B_proportion_reads_kept_0.5.vcf.gz
+filtered_mutect2_calls/C_proportion_reads_kept_0.25.vcf.gz
+filtered_mutect2_calls/C_proportion_reads_kept_0.5.vcf.gz
