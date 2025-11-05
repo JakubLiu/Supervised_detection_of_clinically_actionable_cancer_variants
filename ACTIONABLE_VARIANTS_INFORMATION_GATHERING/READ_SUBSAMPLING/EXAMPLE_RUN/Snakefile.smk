@@ -12,70 +12,87 @@ ref = config['reference_genome']
 rule all:
     input:
         expand(
-            "filtered_mutect2_calls/{bam_basename}_proportion_reads_kept_{prop}.filtered.vcf.gz",
+            "only_PASS_variant_calls/{bam_basename}_proportion_reads_kept_{prop}.filtered.onlyPASS.vcf.gz",
             bam_basename=[extract_basename(f) for f in bamfiles],
             prop=subsample_proportions
         )
 
 
 rule subsample_sort_index:
-  resources:
-    mem_mb = 32000
+    resources:
+        mem_mb=3200
 
-  output:
-    bam = "subsampled_reads/{bam_basename}_proportion_reads_kept_{prop}.bam",
-    bai = "subsampled_reads/{bam_basename}_proportion_reads_kept_{prop}.bam.bai"
+    output:
+        bam = "subsampled_reads/{bam_basename}_proportion_reads_kept_{prop}.bam",
+        bai = "subsampled_reads/{bam_basename}_proportion_reads_kept_{prop}.bam.bai"
 
-  input:
-    lambda wildcards: next(f for f in bamfiles if extract_basename(f) == wildcards.bam_basename)
+    input:
+        lambda wildcards: next(
+            f for f in bamfiles if extract_basename(f) == wildcards.bam_basename
+        )
 
-  params:
-    prop = "{prop}"
+    params:
+        prop = "{prop}"
 
-  shell:
-    """
-    samtools view -s {params.prop} -b {input} | samtools sort -o {output.bam}
-    samtools index {output.bam}
-    """
+    shell:
+        """
+        samtools view -s {params.prop} -b {input} | samtools sort -o {output.bam}
+        samtools index {output.bam}
+        """
 
 
 rule mutect2_call:
-  resources:
-    mem_mb=32000
-  input:
-    bam = "subsampled_reads/{bam_basename}_proportion_reads_kept_{prop}.bam",
-    bai = "subsampled_reads/{bam_basename}_proportion_reads_kept_{prop}.bam.bai"
+    resources:
+        mem_mb=3200
 
-  output:
-    vcf = "raw_mutect2_calls/{bam_basename}_proportion_reads_kept_{prop}.unfiltered.vcf.gz"
+    input:
+        bam = "subsampled_reads/{bam_basename}_proportion_reads_kept_{prop}.bam",
+        bai = "subsampled_reads/{bam_basename}_proportion_reads_kept_{prop}.bam.bai"
 
-  params:
-    threads = 8,
-    ref = ref
+    output:
+        vcf = "raw_mutect2_calls/{bam_basename}_proportion_reads_kept_{prop}.unfiltered.vcf.gz"
 
-  shell:
-    """
-    gatk Mutect2 \
-          -R {params.ref} \
-          -I {input.bam} \
-          -O {output.vcf} \
-          --native-pair-hmm-threads {params.threads}
-    """
+    params:
+        threads = 8,
+        ref = ref
+
+    shell:
+        """
+        gatk Mutect2 \
+            -R {params.ref} \
+            -I {input.bam} \
+            -O {output.vcf} \
+            --native-pair-hmm-threads {params.threads}
+        """
 
 
 rule mutect2_filter:
-  resources:
-    mem_mb=32000
+    resources:
+        mem_mb=3200
+    input:
+        vcf = "raw_mutect2_calls/{bam_basename}_proportion_reads_kept_{prop}.unfiltered.vcf.gz",
+        ref = ref
 
-  input:
-    vcf = "raw_mutect2_calls/{bam_basename}_proportion_reads_kept_{prop}.unfiltered.vcf.gz",
-    ref = ref
+    output:
+        vcf = "filtered_mutect2_calls/{bam_basename}_proportion_reads_kept_{prop}.filtered.vcf.gz"
 
-  output:
-    vcf = "filtered_mutect2_calls/{bam_basename}_proportion_reads_kept_{prop}.filtered.vcf.gz"
+    shell:
+        """
+        gatk FilterMutectCalls -R {input.ref} -V {input.vcf} -O {output.vcf}
+        """
 
-  shell:
-    """
-    gatk FilterMutectCalls -R {input.ref} -V {input.vcf} -O {output.vcf}
-    """
 
+
+rule keep_PASS_variant_calls:
+    resources:
+        mem_mb=3200
+
+    input:
+        "filtered_mutect2_calls/{bam_basename}_proportion_reads_kept_{prop}.filtered.vcf.gz"
+    output:
+        "only_PASS_variant_calls/{bam_basename}_proportion_reads_kept_{prop}.filtered.onlyPASS.vcf.gz"
+    shell:
+        """
+        bcftools view -f PASS {input} -Oz -o {output}  # change this if you want to be less stringent in the filtering
+        tabix -p vcf {output}
+        """

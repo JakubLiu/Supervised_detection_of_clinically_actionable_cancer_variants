@@ -2,7 +2,7 @@
 bam_files:
   - data/bams/A.bam
   - data/bams/B.bam
-  - bams/C.bam
+  - data/bams/C.bam
 
 # percentage of reads to keep
 proportion_reads_to_keep:
