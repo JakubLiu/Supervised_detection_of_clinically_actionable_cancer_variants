@@ -1,3 +1,0 @@
-data/samples/A.bam
-data/samples/B.bam
-data/samples/C.bam

@@ -1,0 +1,28 @@
+source_dir: /SOURCE_DIR  # the directory where the snakefile and the scripts/ folder is located
+                         # this is important when submitting this pipeline as a job (e.g. Slurm) on an HPC
+bamfile_list:
+  - /data/sample1.bam
+  - /data/sample2.bam
+  - /data/sample3.bam
+  - /data/sample4.bam
+
+reference_genome: /data/genome/reference.fa
+
+actionable_variants_bed: /data/regions.bed
+
+cutoffs:
+  - 0.005     # if 0.5% of the reads support an alternative allele at that locus, call that candidate a False Negative
+  - 0.01
+  - 0.05
+  - 0.10
+
+coverages:
+  - 0.01     # keep (random) 1% of the reads
+  - 0.10
+  - 0.25
+  - 0.50
+
+sample_proportions:  # assume there are 4 samples in total
+  - 1       # variants that where not called in 1/4 samples
+  - 2       # variants that where not called in 2/4 samples
+  - 3       # variants that where not called in 3/4 samples

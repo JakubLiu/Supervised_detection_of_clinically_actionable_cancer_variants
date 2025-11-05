@@ -11,6 +11,10 @@ def maybe_temp(path):
         return path
 
 
+# the directory from which snakemake has been run (otherwise there are errors when running it on an HPC)
+rundir = config["source_dir"]
+
+
 # by default remove all intermadiate directories
 # can be changed via snakemake --config remove_intermediate_dirs=False [... other params] 
 remove_intermediate = config.get("remove_intermediate_dirs", True)
@@ -23,6 +27,8 @@ sample_proportions = config['sample_proportions']   # for example fetch variants
 actionable_variants_bed = config['actionable_variants_bed']  # bed file with actionable variants (e.g. from Civic)
  
  
+
+
 rule all:     # modify this rule as you go on
     input:
       expand('postprocessed_mpileup/{raw_bam}_proportion_reads_kept_{prop_reads_to_keep}_in_{sample_prop}_samples_ACTIONALBES_postprocessed_pileup.txt',
@@ -30,6 +36,8 @@ rule all:     # modify this rule as you go on
       prop_reads_to_keep = coverages,
       sample_prop = sample_proportions)
  
+
+
 rule subsample_bams:
     resources:
         mem_mb=32000
@@ -50,6 +58,8 @@ rule subsample_bams:
         samtools index {output.bam}
         '''
 
+
+
 rule mutect2_call:
     resources:
         mem_mb=32000
@@ -62,9 +72,9 @@ rule mutect2_call:
     params:
         threads=8
     shell:
-        """
-        bash scripts/mutect2_call.sh {input.bam} {input.ref} {output.vcf} {params.threads}
-        """
+        f"bash {rundir}/scripts/mutect2_call.sh {{input.bam}} {{input.ref}} {{output.vcf}} {{params.threads}}"
+
+
 
 
 rule mutect2_filter:
@@ -76,39 +86,52 @@ rule mutect2_filter:
     output:
         maybe_temp("filtered_mutect2_calls/{raw_bam}_proportion_reads_kept_{prop_reads_to_keep}.vcf.gz")
     shell:
-        """
-        bash scripts/mutect2_filter.sh {input.ref} {input.vcf} {output}
-        """
+        f'bash {rundir}/scripts/mutect2_filter.sh {{input.ref}} {{input.vcf}} {{output}}'
+
+
+
+rule keep_PASS_variant_calls:
+    resources:
+        mem_mb=3200
+    input:
+        "filtered_mutect2_calls/{raw_bam}_proportion_reads_kept_{prop_reads_to_keep}.vcf.gz"
+    output:
+        maybe_temp(os.path.join(rundir, "only_PASS_variant_calls", "{raw_bam}_proportion_reads_kept_{prop_reads_to_keep}.onlyPASS.vcf.gz"))
+    shell:
+        f'bash {rundir}/scripts/keep_only_PASS_variant_calls.sh {{input}} {{output}}'
+
+
+
 
 rule compile_multiple_vcfs:
     resources:
         mem_mb=32000
     input:
         expand(
-            "filtered_mutect2_calls/{raw_bam}_proportion_reads_kept_{prop_reads_to_keep}.vcf.gz",
-            raw_bam = [extract_basename(f) for f in bamfile_list],
-            prop_reads_to_keep = coverages)
+            os.path.join(rundir, "only_PASS_variant_calls", "{raw_bam}_proportion_reads_kept_{prop_reads_to_keep}.onlyPASS.vcf.gz"),
+            raw_bam=[extract_basename(f) for f in bamfile_list],
+            prop_reads_to_keep=coverages
+        )
     output:
-        maybe_temp("multi_vcf_compilation/multi_vcf_compilation.csv")
+        maybe_temp(os.path.join(rundir, "multi_vcf_compilation", "multi_vcf_compilation.csv"))
     shell:
+        f"""
+        ls -l {rundir}/only_PASS_variant_calls/*.onlyPASS.vcf.gz | awk '{{{{print $NF}}}}' > vcf_filelist.txt
+        python3 {rundir}/scripts/MultiVcfVariantCompilation.py --input vcf_filelist.txt --output {{output}}
         """
-        ls -l filtered_mutect2_calls/*.vcf.gz | awk '{{print $NF}}' > vcf_filelist.txt
-        python3 scripts/MultiVcfVariantCompilation.py --input vcf_filelist.txt --output {output}
-        """
+
 
 rule n_out_of_m_samples:
     resources:
         mem_mb=32000
     input:
-        "multi_vcf_compilation/multi_vcf_compilation.csv",
+        os.path.join(rundir, "multi_vcf_compilation", "multi_vcf_compilation.csv")
     params:
         sample_prop="{sample_prop}"
     output:
         maybe_temp("n_out_of_m_samples/{raw_bam}_proportion_reads_kept_{prop_reads_to_keep}_in_{sample_prop}_samples.bed")
     shell:
-        """
-        python3 scripts/VariantExtractor.py --input {input} --output {output} --proportion {params.sample_prop}
-        """
+        f'python3 {rundir}/scripts/VariantExtractor.py --input {{input}} --output {{output}} --proportion {{params.sample_prop}}'
 
 rule merge_with_actionables_bed:
     resources:
@@ -148,5 +171,5 @@ rule postprocess_mpileup:
     output:
         maybe_temp('postprocessed_mpileup/{raw_bam}_proportion_reads_kept_{prop_reads_to_keep}_in_{sample_prop}_samples_ACTIONALBES_postprocessed_pileup.txt')
     script:
-        'scripts/postprocess_mpileup_FN_call.py'
+        f"{rundir}/scripts/postprocess_mpileup_FN_call.py"
  

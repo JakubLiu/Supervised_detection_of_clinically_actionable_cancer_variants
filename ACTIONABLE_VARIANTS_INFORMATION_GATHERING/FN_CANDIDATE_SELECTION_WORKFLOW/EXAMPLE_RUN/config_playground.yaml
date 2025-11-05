@@ -1,11 +1,14 @@
+source_dir: /data/cephfs-1/home/users/jali13_c/work/ACTIONABLES_INFO_GATHER/FULL_WORKFLOW/SOURCE_DIR
+
+
 bamfile_list:
   - data/samples/A.bam
   - data/samples/B.bam
   - data/samples/C.bam
 
-reference_genome: data/genome.fa
+reference_genome: /data/cephfs-1/home/users/jali13_c/work/ACTIONABLES_INFO_GATHER/FULL_WORKFLOW/PLAYGROUND/data/genome.fa
 
-actionable_variants_bed: data/actionable_variants.bed
+actionable_variants_bed: /data/cephfs-1/home/users/jali13_c/work/ACTIONABLES_INFO_GATHER/FULL_WORKFLOW/PLAYGROUND/data/actionable_variants.bed
 
 cutoffs:
   - 0.01
