@@ -13,6 +13,11 @@ a function of the read coverage depth.
 - **output**: VCF files
 - **what they do**: These two rules perform variant calling and filtration of the initially called variants.
 
+#### keep_PASS_variant_calls
+- **input**: filtered VCF files
+- **output**: VCF files that only include the variant calls that have passed the filters
+- **what is does**: It excludes all variants that have failed some of the filters applied by ```gatk FilterMutectCalls```
+
 #### compile_multiple_vcfs
 - **input**: a list of VCF files
 - **output**: a .txt file showing in how many of these VCF files each variant has been called
@@ -46,13 +51,20 @@ a function of the read coverage depth.
 #### required inputs
 - .bam files (indexed, sorted and with read groups (see gatk AddOrReplaceReadGroups))
 - a reference genome along with all the supporting data structures required by Samtools and Mutect2
-- the **scripts/** directory
-- the snakefile
+- the ```SOURCE_DIR/``` that holds the following files:
+```
+SOURCE_DIR/
+  |___ Snakefile.smk
+  |___ scripts/
+          |__ "all the scripts called by the snakefile"
+```
 - the conda environment (see **save_the_environment.yaml**)
 
 The inputs should be stated as below in the config file.
 
 ```
+source_dir: SOURCE_DIR/
+
 bamfile_list:
   - data/samples/A.bam
   - data/samples/B.bam
@@ -78,17 +90,18 @@ sample_proportions:  # for this we need to know how many samples we have in tota
 If you wish to keep all the intermediate directories and files, run:
 
 ```
-snakemake --snakefile Snakefile.smk --configfile <your config yaml file> --config remove_intermediate_dirs=False --cores <number of cores>
+snakemake --snakefile SOURCE_DIR/Snakefile.smk --configfile <your config yaml file> --config remove_intermediate_dirs=False --cores <number of cores>
 ```
 
 If you with all files and directories to be removed once they become unnecessary, run:
 
 ```
-snakemake --snakefile Snakefile.smk --configfile <your config yaml file> --cores <number of cores>
+snakemake --snakefile SOURCE_DIR/Snakefile.smk --configfile <your config yaml file> --cores <number of cores>
 ```
 
 How to run on the BIH HPC cluster:
   - run it on a detachable linux screen and prefferably on a login node
+  - especially if you run the pipeline on an HPC as a Slurm job, it is important to reference the SOURCE_DIR/, else Snakemake might not find the scripts/ directory
 ```
-snakemake --snakefile Snakefile.smk --configfile <your config yaml file> --profile=cubi-v1 --jobs 1
+snakemake --snakefile SOURCE_DIR/Snakefile.smk --configfile <your config yaml file> --profile=cubi-v1 --jobs 1
 ```
