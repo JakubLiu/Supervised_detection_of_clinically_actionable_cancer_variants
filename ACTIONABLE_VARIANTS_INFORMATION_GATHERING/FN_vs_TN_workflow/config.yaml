@@ -1,0 +1,45 @@
+# data_________________________________________________________________________________________________________________
+tumor_samples:
+  sample_T1:
+    R1: T1_R1_001.fastq.gz
+    R2: T1_R2_001.fastq.gz
+    tumor_sample_name: T1
+  sample_T2:
+    R1: T2_R1_001.fastq.gz
+    R2: T2_R2_001.fastq.gz
+    tumor_sample_name: T2
+
+normal_sample:
+  R1: N1_R1_001.fastq.gz
+  R2: N1_R2_001.fastq.gz
+
+normal_sample_name: N1
+
+# parameters_________________________________________________________________________________________________________
+snakedir: /snakedir
+target_num_reads_tumor: 9719289
+target_num_reads_normal: 9719289
+subsampling_random_seed: 4
+
+resources_mb:
+  subsample_tumor: 100000
+  subsample_normal: 100000
+  map_tumor_original: 100000
+  map_tumor_subsampled: 100000
+  map_normal_original: 100000
+  map_normal_subsampled: 100000
+  process_bam_tumor_original: 100000
+  process_bam_tumor_subsampled: 100000
+  process_bam_normal_original: 100000
+  process_bam_normal_subsampled: 100000
+  mutect2_call_original: 100000
+  mutect2_call_subsampled: 100000
+  mutect2_filter_original: 100000
+  mutect2_filter_subsampled: 100000
+  mutect2_keep_only_PASS_calls_original: 50000
+  mutect2_keep_only_PASS_calls_subsampled: 50000
+  collect: 50000
+  multi_vcf_compilation: 25000
+
+# genome
+reference_genome: /snakedir/data/genome/hs37d5.fa
