@@ -1,0 +1,103 @@
+# data_____________________________________________________________________________________________________
+tumor_samples:
+  sample_T1:
+    R1: T1_R1_001.fastq.gz
+    R2: T1_R2_001.fastq.gz
+    tumor_sample_name: T1
+  sample_T2:
+    R1: T2_R1_001.fastq.gz
+    R2: T2_R2_001.fastq.gz
+    tumor_sample_name: T2
+  sample_T3:
+    R1: T3_R1_001.fastq.gz
+    R2: T3_R2_001.fastq.gz
+    tumor_sample_name: T3
+  sample_T4:
+    R1: T4_R1_001.fastq.gz
+    R2: T4_R2_001.fastq.gz
+    tumor_sample_name: T4
+ 
+normal_sample:
+  R1: N1_R1_001.fastq.gz
+  R2: N1_R2_001.fastq.gz
+  normal_sample_name: N1
+ 
+reference_genome: genome/GRCh38.d1.vd1.fa
+regions_file: regions/S04380110_Regions.bed
+ 
+ 
+# parameters____________________________________________________________________________________________
+snakedir: snakedir
+target_coverage_tumor: 40     # original coverage ~100
+target_coverage_normal: 20    # original covergae ~55
+subsampling_random_seed: 4
+adapter: /adapters/TruSeq3-PE.fa
+
+chromosomes:
+  - chr1
+  - chr2
+  - chr3
+  - chr4
+  - chr5
+  - chr6
+  - chr7
+  - chr8
+  - chr9
+  - chr10
+  - chr11
+  - chr12
+  - chr13
+  - chr14
+  - chr15
+  - chr16
+  - chr17
+  - chr18
+  - chr19
+  - chr20
+  - chr21
+  - chr22
+ 
+ 
+# resources____________________________________________________________________________________________
+resources_mb:
+  adapter_trimming_tumor: 100000
+  adapter_trimming_normal: 100000
+  rule_map_tumor: 100000
+  rule_map_normal: 100000
+  rule_mark_duplicates_tumor: 100000
+  rule_mark_duplicates_normal: 100000
+  postprocess_bam_tumor: 100000
+  postprocess_bam_normal: 100000
+  samtools_depth_tumor: 100000
+  samtools_depth_normal: 100000
+  calculate_per_tumor_sample_depth: 50000
+  calculate_subsampling_proportion_normal: 50000
+  calculate_subsampling_proportion_tumor: 50000
+  samtools_subsampled_tumor: 100000
+  samtools_subsampled_normal: 100000
+  process_subsampled_bam_tumor: 100000
+  process_subsampled_bam_normal: 100000
+  mutect2_scattercall_original: 100000
+  mutect2_scattercall_subsampled: 100000
+  filter_mutect2_calls_original: 100000
+  filter_mutect2_calls_subsampled: 100000
+  keep_PASS_original: 50000
+  keep_PASS_subsampled: 50000
+  collect: 25000
+  multi_vcf_compilation: 100000
+  gather_mutect2_stats_files_original: 50000
+  gather_mutect2_stats_files_subsampled: 50000
+  create_chrom_vcf_list_subsampled: 50000
+  create_chrom_vcf_list_original: 50000
+  bcftools_concat_original: 100000
+  bcftools_concat_subsampled: 100000
+  sort_index_original: 100000
+  sort_index_subsampled: 100000
+  mutect2_filter_original: 100000
+  mutect2_filter_subsampled: 100000
+  keep_PASS_original: 50000
+  keep_PASS_subsampled: 50000
+  collect: 25000
+  multi_vcf_compilation: 100000
+
+ 

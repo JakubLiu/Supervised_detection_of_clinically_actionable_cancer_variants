@@ -1,0 +1,76 @@
+# data_____________________________________________________________________________________________________
+tumor_samples:
+  sample_T1:
+    R1: T1_R1.fastq.gz
+    R2: T1_R2.fastq.gz
+    tumor_sample_name: T1
+  sample_T2:
+    R1: T2_R1.fastq.gz
+    R2: T2_R2.fastq.gz
+    tumor_sample_name: T2
+
+normal_sample:
+  R1: N1_R1.fastq.gz
+  R2: N1_R2.fastq.gz
+  normal_sample_name: N1
+
+reference_genome: data/genome/GRCh38.d1.vd1.fa
+regions_file: data/regions/S04380110_Regions.bed
+
+
+# parameters____________________________________________________________________________________________
+snakedir: /snakedir
+target_coverage_tumor: 10
+target_coverage_normal: 20
+subsampling_random_seed: 4
+
+chromosomes:  # list of chromosomes in which to call the variants (for parallel Mutect2)
+  - chr1
+  - chr2
+  - chr3
+  - chr4
+  - chr5
+  - chr6
+  - chr7
+  - chr8
+  - chr9
+  - chr10
+  - chr11
+  - chr12
+  - chr13
+  - chr14
+  - chr15
+  - chr16
+  - chr17
+  - chr18
+  - chr19
+  - chr20
+  - chr21
+  - chr22
+
+
+# resources____________________________________________________________________________________________
+resources_mb:
+  rule_map_tumor: 100000
+  rule_map_normal: 100000
+  rule_remove_duplicates_tumor: 100000
+  rule_remove_duplicates_normal: 100000
+  postprocess_bam_tumor: 100000
+  postprocess_bam_normal: 100000
+  samtools_depth_tumor: 100000
+  samtools_depth_normal: 100000
+  calculate_per_tumor_sample_depth: 50000
+  calculate_subsampling_proportion_normal: 50000
+  calculate_subsampling_proportion_tumor: 50000
+  samtools_subsampled_tumor: 100000
+  samtools_subsampled_normal: 100000
+  process_subsampled_bam_tumor: 100000
+  process_subsampled_bam_normal: 100000
+  mutect2_call_original: 100000
+  mutect2_call_subsampled: 100000
+  filter_mutect2_calls_original: 100000
+  filter_mutect2_calls_subsampled: 100000
+  keep_PASS_original: 50000
+  keep_PASS_subsampled: 50000
+  collect: 25000
+  multi_vcf_compilation: 100000
