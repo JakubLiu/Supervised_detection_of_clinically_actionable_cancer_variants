@@ -11,7 +11,7 @@ Since there exists no ground truth for this data, we need to guess whether a giv
 We have data from patients with multiple tumor biopsies.
 
 <p align="center">
-  <img src="https://github.com/JakubLiu/Supervised_detection_of_clinically_actionable_cancer_variants/blob/main/ACTIONABLE_VARIANTS_INFORMATION_GATHERING/FN_vs_TN_workflow_old/PIPELINE_V1/venn2.png.png" width="300">
+  <img src="https://github.com/JakubLiu/Supervised_detection_of_clinically_actionable_cancer_variants/blob/main/ACTIONABLE_VARIANTS_INFORMATION_GATHERING/subsampling_effect_workflow/venn2.png.png" width="300">
 </p>
 
 If a variant has been not consistently called across all biopsy samples from the same patient (e.g. called in 2/3 biopsies), then it is of interest to us
