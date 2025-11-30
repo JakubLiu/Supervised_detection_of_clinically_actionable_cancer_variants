@@ -1,13 +1,3 @@
-"""
-This is just a preliminary version, what to the final version:
-    - just mark and dont remove the duplicates
-    - do the mutect2 variant calling per chromosom as a scattergather process (this will add another parallelism, on a different level then slurm)
-        - chat: https://chatgpt.com/share/691f1e2f-ef0c-8006-8560-29e907042a3c
-        - just in mutect you need to specify the regions (one region = one chromosome in our case)
- 
-"""
- 
- 
 import os
 import re
  
@@ -606,4 +596,5 @@ rule multi_vcf_compilation:
         """
         python3 {cf_snakedir}/scripts/multi_vcf_compilation.py --input {input} --output {output}
         """
+
 
