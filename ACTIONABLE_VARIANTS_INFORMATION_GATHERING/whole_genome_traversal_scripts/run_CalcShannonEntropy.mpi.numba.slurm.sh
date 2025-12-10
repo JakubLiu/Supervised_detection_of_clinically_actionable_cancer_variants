@@ -14,7 +14,7 @@ WINDOW="100000"
 OUTPUT_FILE=$2   # variable
 
 
-mpirun -np 10 python3 Calc_Shannon_entropy.optimized.py "$REF" \
+mpirun -np 10 python3 Calc_Shannon_entropy.mpi.numba.py "$REF" \
                                         "$CHROM" \
                                         "$WINDOW" \
                                         "$OUTPUT_FILE"
