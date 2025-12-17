@@ -7,7 +7,8 @@ cf_snakedir = config['snakedir']
 
 rule all:
     input:
-        'processed_pileup/pileup.processed.csv'
+        'processed_pileup/pileup.processed.csv',
+        'annotation/actionables.annotated.vcf'
 
 rule process_actionable_csv:
     resources:
