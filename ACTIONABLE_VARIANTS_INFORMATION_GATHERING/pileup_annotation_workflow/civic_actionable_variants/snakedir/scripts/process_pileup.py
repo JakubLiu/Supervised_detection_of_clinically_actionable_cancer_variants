@@ -1,0 +1,138 @@
+import pandas as pd
+import numpy as np
+import sys
+
+
+# function definitions _________________________________________________________________________________________________
+def split_line(line):
+    n_sample_agnostic_rows = 5
+    n_entries_per_sample = 4
+    alt_chrom_pos_ref_cov = line[:n_sample_agnostic_rows]
+    rest = line[n_sample_agnostic_rows:]
+    n_bams = int(len(rest)/n_entries_per_sample)
+    splitted_rows = []
+
+    start = 0
+    end = n_entries_per_sample
+    for i in range(0, n_bams):
+        row = rest[start:end][:2]
+        row = alt_chrom_pos_ref_cov + ['sample' + str(i+1)] + row
+        splitted_rows.append(row)
+        start = end
+        end = end + n_entries_per_sample
+        
+    return splitted_rows
+
+
+
+def translator(seq_in, ref, civic_alt):
+    seq_out = ""
+    n_alt = 0   # number of non-reference bases
+    n_civic_alt = 0  # number of non-referecne bases that match the Civic alternative (only count SNVs)
+    i = 0
+
+    while i < len(seq_in):
+        symbol = seq_in[i]
+        
+        if symbol in ['.', ',']:
+            seq_out += ref
+            i += 1
+        
+        elif symbol == '^':  # start of read (skip symbol + next char)
+            i += 2
+        
+        elif symbol == '$':  # end of read
+            i += 1
+        
+        elif symbol == '+':  # insertion
+            # get the size of the insertion
+            j = i + 1
+            num_str = ""
+            while j < len(seq_in) and seq_in[j].isdigit():
+                num_str += seq_in[j]
+                j += 1
+            insertion_size = int(num_str)
+
+            insertion_seq = seq_in[j:j+insertion_size]
+            seq_out += insertion_seq
+
+            i = j + insertion_size  # skip over inserted bases
+            n_alt += insertion_size
+        
+        elif symbol == '-':  # deletion
+            j = i + 1
+            num_str = ""
+            while j < len(seq_in) and seq_in[j].isdigit():
+                num_str += seq_in[j]
+                j += 1
+            deletion_size = int(num_str)
+
+            seq_out += 'DEL' * deletion_size
+            i = j + deletion_size  # skip deleted bases
+            n_alt += deletion_size
+        
+        elif symbol == '*':  # placeholder for deletion
+            seq_out += 'DEL'
+            i += 1
+            n_alt += 1
+        
+        else:
+            # actual nucleotide (A, T, G, C, a, t, g, c)
+            if symbol.upper() in ['A', 'T', 'G', 'C', 'N']:
+                seq_out += symbol.upper()
+                n_alt += 1
+                if symbol.upper() == civic_alt:
+                    n_civic_alt += 1
+                i += 1
+                
+            else:
+                print(f"Unrecognized symbol at position {i}: {symbol}")
+                i += 1  # to avoid infinite loop
+
+    return (seq_out, n_alt, n_civic_alt)
+
+# ____________________________________________________________________________________________________________________________________________
+
+civic_alt_filepath = sys.argv[1]
+pileup_filepath = sys.argv[2]
+output_filepath = sys.argv[3]
+
+
+civic_alt = pd.DataFrame(np.loadtxt(civic_alt_filepath, dtype = str, delimiter = ','))
+civic_alt.columns = ['chrom', 'start', 'stop', 'ref', 'civic_alt']
+pileup = pd.DataFrame(np.loadtxt(pileup_filepath, dtype = str))
+fixed_cols = ['chrom', 'start', 'ref', 'coverage']  # sample-agnostic columns
+pileup.columns = fixed_cols + list(range(len(fixed_cols),pileup.shape[1]))
+
+# merge the two datafraes based on the chrom and start columns
+merged = pd.merge(pileup, civic_alt, on=["chrom", "start"], how="inner")
+
+# reorder the columns for clarity
+new_fixed_cols = ['chrom', 'start', 'stop', 'ref_x', 'civic_alt', 'coverage'] # new sample-agnostic columns
+merged = merged[new_fixed_cols + [c for c in merged.columns if c not in new_fixed_cols]]
+
+with open(output_filepath, 'w') as fout:
+
+    # write the header line
+    fout.write('sample,chrom,start,stop,ref,civi_alt,coverage,n_alt_reads,n_civic_alt_reads,translated_sequennce' + '\n')
+
+    for line in merged.to_numpy().tolist():  # iterate over the rows of the merged df
+        sample_splitted_line = split_line(line)  # a list of lists, each inner list is the row for one sample
+
+        for sample in sample_splitted_line:  # iterate over each sample for the given actionable variant
+            chromosome = sample[0]
+            start = int(sample[1])
+            stop = int(sample[2])
+            ref = sample[3]
+            civic_alt = sample[4]
+            sampleID = sample[5]
+            coverage = int(sample[6])
+            raw_sequence = sample[-1]
+
+            translated_sequence, n_alt, n_civic_alt = translator(raw_sequence,
+                                                                 ref,
+                                                                 civic_alt)
+            
+            output_line = [sampleID, chromosome, start, stop, ref, civic_alt, coverage, n_alt, n_civic_alt, translated_sequence]
+            output_line = ','.join([str(element) for element in output_line])
+            fout.write(output_line + '\n')

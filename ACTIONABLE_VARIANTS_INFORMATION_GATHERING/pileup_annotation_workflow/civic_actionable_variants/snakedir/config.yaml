@@ -1,0 +1,8 @@
+bamfile_list: bamlist.txt
+actionables_csv: Civic_ABC_SNV.csv
+reference_genome: hs37d5.fa
+snpEff_dir: snpeff/snpEff
+snakedir: snakedir
+
+
+
