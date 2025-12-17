@@ -92,3 +92,17 @@ The processed pileup should have the following structure:
 | sample1 | 2 | 132456 | 132456 | G | 32 | T | 3 | 3 | GGGGGGTTTGGG |
 
 
+# Importand consideration
+To get a better view of the data it is important to also use not only the tumor bamfiles but also the normal bamfile. It is also important to name it,
+so that it is clearly distinguishable from the other samples in the final output table (for example):
+| **SAMPLE** | **CHROMOSOME** | **START** | **STOP** | **REF** | **CIVIC_ALT** | **COVERAGE**| **N_TOTAL_ALT_READS** | **N_CIVIC_ALT_READS** | **READS** |
+|------|------|------|------|------|------|------|------|------|------|
+| sample1 |  |  | |  | | |  |  | |
+| sample2 |  |  | |  |  | | |  | |
+| **normal** |  | | |  |  |  |  |  | |
+| sample1 |  |  |  |  |  |  |  |  | |
+| sample2 |  |  |  |  | |  | | | |
+| **normal** |  |  |  |  |  |  |  |  |  |
+
+
+
