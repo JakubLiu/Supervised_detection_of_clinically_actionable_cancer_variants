@@ -1,4 +1,5 @@
 # How to run
+**THIS PIPELINE WORKS ONLY FOR SNV's, FOR INDELS IT PRODUCES WRONG RESULTS !!!**
 ## components
 All the input files needed to run this pipeline must be supplied in the ```config.yaml``` file. They include:
 
