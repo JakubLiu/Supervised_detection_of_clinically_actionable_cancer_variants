@@ -16,11 +16,13 @@ rule process_actionable_csv:
         cf_actionables_csv
     output:
         vcf = 'actionables.vcf',
-        bed = 'actionables.bed'
+        bed = 'actionables.bed',
+        dummy = 'dummy.txt'          # this dummy output is needed to bind this rule with the rule 'make_pileup' that needs to wait for the output of this rule
     shell:
         """
         bash {cf_snakedir}/scripts/csv_to_bed.sh "{input}" "{output.bed}"
         python3 {cf_snakedir}/scripts/csv_to_vcf.py "{input}" "{output.vcf}"
+        echo "Hello there" > "{output.dummy}"
         """
 
 
@@ -44,7 +46,8 @@ rule make_pileup:
     resources:
         mem_mb=10000
     input:
-        cf_bamlist_file
+        bamlist = cf_bamlist_file,
+        dummy = 'dummy.txt'
     output:
         'pileup/pileup.txt'
     params:
@@ -52,7 +55,7 @@ rule make_pileup:
         rule_reference_genome = cf_reference_genome
     shell:
         """
-        bash {cf_snakedir}/scripts/pileup.sh "{input}" "{params.bed}" "{params.rule_reference_genome}" "{output}"
+        bash {cf_snakedir}/scripts/pileup.sh "{input.bamlist}" "{params.bed}" "{params.rule_reference_genome}" "{output}"
         """
 
 
@@ -61,16 +64,12 @@ rule process_pileup:
         mem_mb = 100000
     input:
         actionables = cf_actionables_csv,
-        pileup = 'pileup/pileup.txt'
+        pileup = 'pileup/pileup.txt',
+        bamlist_file = cf_bamlist_file
     output:
         'processed_pileup/pileup.processed.csv'
     shell:
         """
-        python3 {cf_snakedir}/scripts/process_pileup.py "{input.actionables}" "{input.pileup}" "{output}"
+        python3 {cf_snakedir}/scripts/process_pileup.py "{input.actionables}" "{input.pileup}" "{output}" "{input.bamlist_file}"
         """
-
-
-
-
-
 
