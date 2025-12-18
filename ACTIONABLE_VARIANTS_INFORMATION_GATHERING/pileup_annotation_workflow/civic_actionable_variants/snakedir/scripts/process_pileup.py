@@ -4,19 +4,19 @@ import sys
 
 
 # function definitions _________________________________________________________________________________________________
-def split_line(line):
+def split_line(line, sample_names):
     n_sample_agnostic_rows = 5
     n_entries_per_sample = 4
     alt_chrom_pos_ref_cov = line[:n_sample_agnostic_rows]
     rest = line[n_sample_agnostic_rows:]
-    n_bams = int(len(rest)/n_entries_per_sample)
+    n_bams = len(sample_names)
     splitted_rows = []
 
     start = 0
     end = n_entries_per_sample
     for i in range(0, n_bams):
         row = rest[start:end][:2]
-        row = alt_chrom_pos_ref_cov + ['sample' + str(i+1)] + row
+        row = alt_chrom_pos_ref_cov + [sample_names[i]] + row
         splitted_rows.append(row)
         start = end
         end = end + n_entries_per_sample
@@ -96,6 +96,14 @@ def translator(seq_in, ref, civic_alt):
 civic_alt_filepath = sys.argv[1]
 pileup_filepath = sys.argv[2]
 output_filepath = sys.argv[3]
+bamlist_filepath = sys.argv[4]
+
+
+with open(bamlist_filepath) as f:  # extract the sample names based on the bamlist file
+    sample_names = [
+        line.strip().split('/')[-1].replace('.rg.sorted.bam', '')
+        for line in f
+    ]
 
 
 civic_alt = pd.DataFrame(np.loadtxt(civic_alt_filepath, dtype = str, delimiter = ','))
@@ -117,7 +125,7 @@ with open(output_filepath, 'w') as fout:
     fout.write('sample,chrom,start,stop,ref,civi_alt,coverage,n_alt_reads,n_civic_alt_reads,translated_sequennce' + '\n')
 
     for line in merged.to_numpy().tolist():  # iterate over the rows of the merged df
-        sample_splitted_line = split_line(line)  # a list of lists, each inner list is the row for one sample
+        sample_splitted_line = split_line(line, sample_names)  # a list of lists, each inner list is the row for one sample
 
         for sample in sample_splitted_line:  # iterate over each sample for the given actionable variant
             chromosome = sample[0]
