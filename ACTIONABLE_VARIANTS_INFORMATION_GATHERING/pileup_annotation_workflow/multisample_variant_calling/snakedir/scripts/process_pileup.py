@@ -101,7 +101,8 @@ output_filepath = sys.argv[3]
 bamlist_filepath = sys.argv[4]
 multi_vcf = sys.argv[5]
   
-sample_names = pd.read_csv(multi_vcf, header=0).columns.tolist()[0].split(' ')[1:]
+sample_names = pd.read_csv(multi_vcf, header=0, delimiter = ',').columns.tolist()
+
 
 variants = pd.DataFrame(np.loadtxt(loci, delimiter = ',', skiprows = 0, dtype = str))
 variants.columns = ['chrom', 'pos', 'ref', 'alt']
@@ -126,15 +127,13 @@ cols = [
 merged = merged[cols]
 
 
-
 with open(output_filepath, 'w') as fout:
  
     # write the header line
-    fout.write('sample,chrom,pos,ref,variant_alt,coverage,n_alt_reads,n_variant_supporting_alt_reads,translated_sequennce' + '\n')
+    fout.write('sample,chrom,pos,ref,variant_alt,coverage,n_alt_reads,n_variant_supporting_alt_reads,translated_sequence' + '\n')
 
     for line in merged.to_numpy().tolist():
         sample_splitted_line = split_line(line, sample_names)
-
         for sample in sample_splitted_line:
             chromosome = str(sample[0])
             pos = int(sample[1])
