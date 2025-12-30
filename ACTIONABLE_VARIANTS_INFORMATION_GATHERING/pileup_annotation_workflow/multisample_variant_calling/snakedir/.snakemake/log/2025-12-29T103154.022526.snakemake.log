@@ -1,0 +1,53 @@
+Assuming unrestricted shared filesystem usage.
+host: hpc-cpu-226
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 30
+Rules claiming more threads will be scaled down.
+Job stats:
+job               count
+--------------  -------
+all                   1
+process_pileup        1
+total                 2
+
+Select jobs to execute...
+Execute 1 jobs...
+[Mon Dec 29 10:31:54 2025]
+localrule process_pileup:
+    input: variants_loci/loci.txt, pileup/raw_pileup.txt, /data/cephfs-1/home/users/jali13_c/work/ACTIONABLES_INFO_GATHER/ANNOTATIONS/CALLED_VARIANTS/snakedir/init_input_files/bamlist_file.txt
+    output: pileup/pileup.processed.csv
+    jobid: 1
+    reason: Missing output files: pileup/pileup.processed.csv
+    resources: tmpdir=/data/cephfs-1/home/users/jali13_c/scratch/tmp, mem_mb=50000, mem_mib=47684
+RuleException:
+CalledProcessError in file "/data/cephfs-1/work/groups/cubi/users/jali13_c/ACTIONABLES_INFO_GATHER/ANNOTATIONS/CALLED_VARIANTS/snakedir/Snakefile.smk", line 93:
+Command 'set -euo pipefail;  
+        python3 /data/cephfs-1/home/users/jali13_c/work/ACTIONABLES_INFO_GATHER/ANNOTATIONS/CALLED_VARIANTS/snakedir/scripts/process_pileup.py "variants_loci/loci.txt" "pileup/raw_pileup.txt" "pileup/pileup.processed.csv"                                                         "/data/cephfs-1/home/users/jali13_c/work/ACTIONABLES_INFO_GATHER/ANNOTATIONS/CALLED_VARIANTS/snakedir/init_input_files/bamlist_file.txt" ".dedupa.rg.sorted.bam"' returned non-zero exit status 1.
+[Mon Dec 29 10:31:54 2025]
+Error in rule process_pileup:
+    message: None
+    jobid: 1
+    input: variants_loci/loci.txt, pileup/raw_pileup.txt, /data/cephfs-1/home/users/jali13_c/work/ACTIONABLES_INFO_GATHER/ANNOTATIONS/CALLED_VARIANTS/snakedir/init_input_files/bamlist_file.txt
+    output: pileup/pileup.processed.csv
+    shell:
+        
+        python3 /data/cephfs-1/home/users/jali13_c/work/ACTIONABLES_INFO_GATHER/ANNOTATIONS/CALLED_VARIANTS/snakedir/scripts/process_pileup.py "variants_loci/loci.txt" "pileup/raw_pileup.txt" "pileup/pileup.processed.csv"                                                         "/data/cephfs-1/home/users/jali13_c/work/ACTIONABLES_INFO_GATHER/ANNOTATIONS/CALLED_VARIANTS/snakedir/init_input_files/bamlist_file.txt" ".dedupa.rg.sorted.bam"
+        
+        (command exited with non-zero exit code)
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look below for error messages
+[Mon Dec 29 10:31:54 2025]
+Error in rule process_pileup:
+    message: None
+    jobid: 1
+    input: variants_loci/loci.txt, pileup/raw_pileup.txt, /data/cephfs-1/home/users/jali13_c/work/ACTIONABLES_INFO_GATHER/ANNOTATIONS/CALLED_VARIANTS/snakedir/init_input_files/bamlist_file.txt
+    output: pileup/pileup.processed.csv
+    shell:
+        
+        python3 /data/cephfs-1/home/users/jali13_c/work/ACTIONABLES_INFO_GATHER/ANNOTATIONS/CALLED_VARIANTS/snakedir/scripts/process_pileup.py "variants_loci/loci.txt" "pileup/raw_pileup.txt" "pileup/pileup.processed.csv"                                                         "/data/cephfs-1/home/users/jali13_c/work/ACTIONABLES_INFO_GATHER/ANNOTATIONS/CALLED_VARIANTS/snakedir/init_input_files/bamlist_file.txt" ".dedupa.rg.sorted.bam"
+        
+        (command exited with non-zero exit code)
+Complete log(s): /data/cephfs-1/work/groups/cubi/users/jali13_c/ACTIONABLES_INFO_GATHER/ANNOTATIONS/CALLED_VARIANTS/snakedir/.snakemake/log/2025-12-29T103154.022526.snakemake.log
+WorkflowError:
+At least one job did not complete successfully.

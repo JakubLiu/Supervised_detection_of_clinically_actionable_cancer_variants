@@ -1,0 +1,60 @@
+Assuming unrestricted shared filesystem usage.
+host: hpc-cpu-159
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 50
+Rules claiming more threads will be scaled down.
+Job stats:
+job               count
+--------------  -------
+all                   1
+pileup                1
+process_pileup        1
+total                 3
+
+Select jobs to execute...
+Execute 1 jobs...
+[Sat Dec 27 13:50:46 2025]
+localrule pileup:
+    input: /data/cephfs-1/home/users/jali13_c/work/ACTIONABLES_INFO_GATHER/ANNOTATIONS/CALLED_VARIANTS/snakedir/init_input_files/bamlist_file.txt
+    output: pileup/raw_pileup.txt
+    jobid: 3
+    reason: Code has changed since last execution
+    resources: tmpdir=/data/cephfs-1/home/users/jali13_c/scratch/tmp, mem_mb=100000, mem_mib=95368
+RuleException:
+CalledProcessError in file "/data/cephfs-1/work/groups/cubi/users/jali13_c/ACTIONABLES_INFO_GATHER/ANNOTATIONS/CALLED_VARIANTS/snakedir/Snakefile.smk", line 71:
+Command 'set -euo pipefail;  
+        awk -F ';' -v OFS='	' '{print $1, $2-1, $2}' /data/cephfs-1/home/users/jali13_c/work/ACTIONABLES_INFO_GATHER/ANNOTATIONS/CALLED_VARIANTS/snakedir/init_input_files/multi_vcf_compilation.txt | tail -n +2 > tmp2.txt
+        bash /data/cephfs-1/home/users/jali13_c/work/ACTIONABLES_INFO_GATHER/ANNOTATIONS/CALLED_VARIANTS/snakedir/scripts/pileup.sh "/data/cephfs-1/home/users/jali13_c/work/ACTIONABLES_INFO_GATHER/ANNOTATIONS/CALLED_VARIANTS/snakedir/init_input_files/bamlist_file.txt" tmp2.txt "/data/cephfs-1/home/users/jali13_c/work/ACTIONABLES_INFO_GATHER/TNs_vs_FNs/PIPELINE_V2_PLAYGROUND/data/genome/GRCh38.d1.vd1.fa" "pileup/raw_pileup.txt"
+        rm tmp2.txt' returned non-zero exit status 127.
+[Sat Dec 27 13:50:46 2025]
+Error in rule pileup:
+    message: None
+    jobid: 3
+    input: /data/cephfs-1/home/users/jali13_c/work/ACTIONABLES_INFO_GATHER/ANNOTATIONS/CALLED_VARIANTS/snakedir/init_input_files/bamlist_file.txt
+    output: pileup/raw_pileup.txt
+    shell:
+        
+        awk -F ';' -v OFS='	' '{print $1, $2-1, $2}' /data/cephfs-1/home/users/jali13_c/work/ACTIONABLES_INFO_GATHER/ANNOTATIONS/CALLED_VARIANTS/snakedir/init_input_files/multi_vcf_compilation.txt | tail -n +2 > tmp2.txt
+        bash /data/cephfs-1/home/users/jali13_c/work/ACTIONABLES_INFO_GATHER/ANNOTATIONS/CALLED_VARIANTS/snakedir/scripts/pileup.sh "/data/cephfs-1/home/users/jali13_c/work/ACTIONABLES_INFO_GATHER/ANNOTATIONS/CALLED_VARIANTS/snakedir/init_input_files/bamlist_file.txt" tmp2.txt "/data/cephfs-1/home/users/jali13_c/work/ACTIONABLES_INFO_GATHER/TNs_vs_FNs/PIPELINE_V2_PLAYGROUND/data/genome/GRCh38.d1.vd1.fa" "pileup/raw_pileup.txt"
+        rm tmp2.txt
+        
+        (command exited with non-zero exit code)
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look below for error messages
+[Sat Dec 27 13:50:46 2025]
+Error in rule pileup:
+    message: None
+    jobid: 3
+    input: /data/cephfs-1/home/users/jali13_c/work/ACTIONABLES_INFO_GATHER/ANNOTATIONS/CALLED_VARIANTS/snakedir/init_input_files/bamlist_file.txt
+    output: pileup/raw_pileup.txt
+    shell:
+        
+        awk -F ';' -v OFS='	' '{print $1, $2-1, $2}' /data/cephfs-1/home/users/jali13_c/work/ACTIONABLES_INFO_GATHER/ANNOTATIONS/CALLED_VARIANTS/snakedir/init_input_files/multi_vcf_compilation.txt | tail -n +2 > tmp2.txt
+        bash /data/cephfs-1/home/users/jali13_c/work/ACTIONABLES_INFO_GATHER/ANNOTATIONS/CALLED_VARIANTS/snakedir/scripts/pileup.sh "/data/cephfs-1/home/users/jali13_c/work/ACTIONABLES_INFO_GATHER/ANNOTATIONS/CALLED_VARIANTS/snakedir/init_input_files/bamlist_file.txt" tmp2.txt "/data/cephfs-1/home/users/jali13_c/work/ACTIONABLES_INFO_GATHER/TNs_vs_FNs/PIPELINE_V2_PLAYGROUND/data/genome/GRCh38.d1.vd1.fa" "pileup/raw_pileup.txt"
+        rm tmp2.txt
+        
+        (command exited with non-zero exit code)
+Complete log(s): /data/cephfs-1/work/groups/cubi/users/jali13_c/ACTIONABLES_INFO_GATHER/ANNOTATIONS/CALLED_VARIANTS/snakedir/.snakemake/log/2025-12-27T135046.735821.snakemake.log
+WorkflowError:
+At least one job did not complete successfully.

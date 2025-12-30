@@ -1,0 +1,53 @@
+Assuming unrestricted shared filesystem usage.
+host: hpc-cpu-159
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 20
+Rules claiming more threads will be scaled down.
+Job stats:
+job         count
+--------  -------
+all             1
+annotate        1
+total           2
+
+Select jobs to execute...
+Execute 1 jobs...
+[Tue Dec 23 11:36:46 2025]
+localrule annotate:
+    input: annotation/vcf_to_annotate.vcf
+    output: annotation/annotated.vcf
+    jobid: 1
+    reason: Missing output files: annotation/annotated.vcf
+    resources: tmpdir=/data/cephfs-1/home/users/jali13_c/scratch/tmp, mem_mb=100000, mem_mib=95368
+RuleException:
+CalledProcessError in file "/data/cephfs-1/work/groups/cubi/users/jali13_c/ACTIONABLES_INFO_GATHER/ANNOTATIONS/CALLED_VARIANTS/snakedir2/Snakefile.smk", line 53:
+Command 'set -euo pipefail;  
+        bash /data/cephfs-1/home/users/jali13_c/work/ACTIONABLES_INFO_GATHER/ANNOTATIONS/CALLED_VARIANTS/snakedir2/scripts/annote.sh "annotation/vcf_to_annotate.vcf" "GRCh38.86" "annotation/annotated.vcf" "/data/cephfs-1/home/users/jali13_c/work/ACTIONABLES_INFO_GATHER/ANNOTATIONS/snpeff/snpEff"' returned non-zero exit status 127.
+[Tue Dec 23 11:36:46 2025]
+Error in rule annotate:
+    message: None
+    jobid: 1
+    input: annotation/vcf_to_annotate.vcf
+    output: annotation/annotated.vcf
+    shell:
+        
+        bash /data/cephfs-1/home/users/jali13_c/work/ACTIONABLES_INFO_GATHER/ANNOTATIONS/CALLED_VARIANTS/snakedir2/scripts/annote.sh "annotation/vcf_to_annotate.vcf" "GRCh38.86" "annotation/annotated.vcf" "/data/cephfs-1/home/users/jali13_c/work/ACTIONABLES_INFO_GATHER/ANNOTATIONS/snpeff/snpEff"
+        
+        (command exited with non-zero exit code)
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look below for error messages
+[Tue Dec 23 11:36:46 2025]
+Error in rule annotate:
+    message: None
+    jobid: 1
+    input: annotation/vcf_to_annotate.vcf
+    output: annotation/annotated.vcf
+    shell:
+        
+        bash /data/cephfs-1/home/users/jali13_c/work/ACTIONABLES_INFO_GATHER/ANNOTATIONS/CALLED_VARIANTS/snakedir2/scripts/annote.sh "annotation/vcf_to_annotate.vcf" "GRCh38.86" "annotation/annotated.vcf" "/data/cephfs-1/home/users/jali13_c/work/ACTIONABLES_INFO_GATHER/ANNOTATIONS/snpeff/snpEff"
+        
+        (command exited with non-zero exit code)
+Complete log(s): /data/cephfs-1/work/groups/cubi/users/jali13_c/ACTIONABLES_INFO_GATHER/ANNOTATIONS/CALLED_VARIANTS/snakedir2/.snakemake/log/2025-12-23T113646.841238.snakemake.log
+WorkflowError:
+At least one job did not complete successfully.

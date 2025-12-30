@@ -1,0 +1,11 @@
+Assuming unrestricted shared filesystem usage.
+host: hpc-cpu-59
+Building DAG of jobs...
+IncompleteFilesException:
+The files below seem to be incomplete. If you are sure that certain files are not incomplete, mark them as complete with
+
+    snakemake --cleanup-metadata <filenames>
+
+To re-generate the files rerun your command with the --rerun-incomplete flag.
+Incomplete files:
+pileup/raw_pileup.txt

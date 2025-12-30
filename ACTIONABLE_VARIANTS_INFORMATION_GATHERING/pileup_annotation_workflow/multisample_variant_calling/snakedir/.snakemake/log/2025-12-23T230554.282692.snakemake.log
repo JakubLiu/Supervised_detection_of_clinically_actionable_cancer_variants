@@ -1,0 +1,37 @@
+Assuming unrestricted shared filesystem usage.
+host: hpc-cpu-66
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 50
+Rules claiming more threads will be scaled down.
+Job stats:
+job       count
+------  -------
+all           1
+pileup        1
+total         2
+
+Select jobs to execute...
+Execute 1 jobs...
+[Tue Dec 23 23:05:54 2025]
+localrule pileup:
+    input: /data/cephfs-1/home/users/jali13_c/work/ACTIONABLES_INFO_GATHER/ANNOTATIONS/CALLED_VARIANTS/snakedir2/init_input_files/bamlist_file.txt
+    output: pileup/raw_pileup.txt
+    jobid: 1
+    reason: Missing output files: pileup/raw_pileup.txt; Code has changed since last execution
+    resources: tmpdir=/data/cephfs-1/home/users/jali13_c/scratch/tmp, mem_mb=100000, mem_mib=95368
+[Tue Dec 23 23:08:05 2025]
+Finished jobid: 1 (Rule: pileup)
+1 of 2 steps (50%) done
+Select jobs to execute...
+Execute 1 jobs...
+[Tue Dec 23 23:08:05 2025]
+localrule all:
+    input: pileup/raw_pileup.txt
+    jobid: 0
+    reason: Input files updated by another job: pileup/raw_pileup.txt
+    resources: tmpdir=/data/cephfs-1/home/users/jali13_c/scratch/tmp
+[Tue Dec 23 23:08:05 2025]
+Finished jobid: 0 (Rule: all)
+2 of 2 steps (100%) done
+Complete log(s): /data/cephfs-1/work/groups/cubi/users/jali13_c/ACTIONABLES_INFO_GATHER/ANNOTATIONS/CALLED_VARIANTS/snakedir2/.snakemake/log/2025-12-23T230554.282692.snakemake.log

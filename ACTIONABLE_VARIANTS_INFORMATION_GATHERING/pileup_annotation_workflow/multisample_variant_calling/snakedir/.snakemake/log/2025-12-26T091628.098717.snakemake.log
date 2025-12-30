@@ -1,0 +1,53 @@
+Assuming unrestricted shared filesystem usage.
+host: hpc-cpu-59
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 30
+Rules claiming more threads will be scaled down.
+Job stats:
+job                     count
+--------------------  -------
+all                         1
+make_vcf_to_annotate        1
+pileup                      1
+process_pileup              1
+total                       4
+
+Select jobs to execute...
+Failed to solve scheduling problem with ILP solver, falling back to greedy scheduler. You likely have to fix your ILP solver installation. Error message: PULP_CBC_CMD: Not Available (check permissions on cbc)
+Execute 2 jobs...
+[Fri Dec 26 09:16:28 2025]
+localrule pileup:
+    input: /data/cephfs-1/home/users/jali13_c/work/ACTIONABLES_INFO_GATHER/ANNOTATIONS/CALLED_VARIANTS/snakedir/init_input_files/bamlist_file.txt
+    output: pileup/raw_pileup.txt
+    jobid: 3
+    reason: Missing output files: pileup/raw_pileup.txt; Set of input files has changed since last execution
+    resources: tmpdir=/data/cephfs-1/home/users/jali13_c/scratch/tmp, mem_mb=100000, mem_mib=95368
+[Fri Dec 26 09:16:28 2025]
+localrule make_vcf_to_annotate:
+    input: init_input_files/multi_vcf_compilation.txt
+    output: variants_loci/loci.txt, annotation/vcf_to_annotate.vcf
+    jobid: 2
+    reason: Missing output files: variants_loci/loci.txt
+    resources: tmpdir=/data/cephfs-1/home/users/jali13_c/scratch/tmp, mem_mb=50000, mem_mib=47684
+RuleException:
+CalledProcessError in file "/data/cephfs-1/work/groups/cubi/users/jali13_c/ACTIONABLES_INFO_GATHER/ANNOTATIONS/CALLED_VARIANTS/snakedir/Snakefile.smk", line 35:
+Command 'set -euo pipefail;  
+        bash /data/cephfs-1/home/users/jali13_c/work/ACTIONABLES_INFO_GATHER/ANNOTATIONS/CALLED_VARIANTS/snakedir/scripts/extract_loci.sh "init_input_files/multi_vcf_compilation.txt" tmp.txt
+        python3 /data/cephfs-1/home/users/jali13_c/work/ACTIONABLES_INFO_GATHER/ANNOTATIONS/CALLED_VARIANTS/snakedir/scripts/make_vcf.py tmp.txt "annotation/vcf_to_annotate.vcf"
+        sed 's/;/,/g' tmp.txt |  tail -n +2 > "variants_loci/loci.txt"
+        rm tmp.txt' returned non-zero exit status 2.
+[Fri Dec 26 09:16:28 2025]
+Error in rule make_vcf_to_annotate:
+    message: None
+    jobid: 2
+    input: init_input_files/multi_vcf_compilation.txt
+    output: variants_loci/loci.txt, annotation/vcf_to_annotate.vcf
+    shell:
+        
+        bash /data/cephfs-1/home/users/jali13_c/work/ACTIONABLES_INFO_GATHER/ANNOTATIONS/CALLED_VARIANTS/snakedir/scripts/extract_loci.sh "init_input_files/multi_vcf_compilation.txt" tmp.txt
+        python3 /data/cephfs-1/home/users/jali13_c/work/ACTIONABLES_INFO_GATHER/ANNOTATIONS/CALLED_VARIANTS/snakedir/scripts/make_vcf.py tmp.txt "annotation/vcf_to_annotate.vcf"
+        sed 's/;/,/g' tmp.txt |  tail -n +2 > "variants_loci/loci.txt"
+        rm tmp.txt
+        
+        (command exited with non-zero exit code)

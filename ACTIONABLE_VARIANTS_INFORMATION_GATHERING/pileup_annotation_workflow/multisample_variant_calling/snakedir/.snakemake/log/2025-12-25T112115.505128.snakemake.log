@@ -1,0 +1,65 @@
+Assuming unrestricted shared filesystem usage.
+host: hpc-cpu-125
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 20
+Rules claiming more threads will be scaled down.
+Job stats:
+job                     count
+--------------------  -------
+all                         1
+make_vcf_to_annotate        1
+total                       2
+
+Select jobs to execute...
+Execute 1 jobs...
+[Thu Dec 25 11:21:15 2025]
+localrule make_vcf_to_annotate:
+    input: init_input_files/multi_vcf_compilation.txt
+    output: variants_loci/loci.txt, annotation/vcf_to_annotate.vcf
+    jobid: 1
+    reason: Missing output files: variants_loci/loci.txt; Code has changed since last execution
+    resources: tmpdir=/data/cephfs-1/home/users/jali13_c/scratch/tmp, mem_mb=50000, mem_mib=47684
+RuleException:
+CalledProcessError in file "/data/cephfs-1/work/groups/cubi/users/jali13_c/ACTIONABLES_INFO_GATHER/ANNOTATIONS/CALLED_VARIANTS/snakedir/Snakefile.smk", line 36:
+Command 'set -euo pipefail;  
+        bash /data/cephfs-1/home/users/jali13_c/work/ACTIONABLES_INFO_GATHER/ANNOTATIONS/CALLED_VARIANTS/snakedir/scripts/extract_loci.sh "init_input_files/multi_vcf_compilation.txt" tmp.txt
+        echo "aha"
+        python3 /data/cephfs-1/home/users/jali13_c/work/ACTIONABLES_INFO_GATHER/ANNOTATIONS/CALLED_VARIANTS/snakedir/scripts/make_vcf.py tmp.txt "variants_loci/loci.txt annotation/vcf_to_annotate.vcf"
+        sed 's/;/,/g' tmp.txt |  tail -n +2 > "variants_loci/loci.txt"
+        rm tmp.txt' returned non-zero exit status 1.
+[Thu Dec 25 11:21:15 2025]
+Error in rule make_vcf_to_annotate:
+    message: None
+    jobid: 1
+    input: init_input_files/multi_vcf_compilation.txt
+    output: variants_loci/loci.txt, annotation/vcf_to_annotate.vcf
+    shell:
+        
+        bash /data/cephfs-1/home/users/jali13_c/work/ACTIONABLES_INFO_GATHER/ANNOTATIONS/CALLED_VARIANTS/snakedir/scripts/extract_loci.sh "init_input_files/multi_vcf_compilation.txt" tmp.txt
+        echo "aha"
+        python3 /data/cephfs-1/home/users/jali13_c/work/ACTIONABLES_INFO_GATHER/ANNOTATIONS/CALLED_VARIANTS/snakedir/scripts/make_vcf.py tmp.txt "variants_loci/loci.txt annotation/vcf_to_annotate.vcf"
+        sed 's/;/,/g' tmp.txt |  tail -n +2 > "variants_loci/loci.txt"
+        rm tmp.txt
+        
+        (command exited with non-zero exit code)
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look below for error messages
+[Thu Dec 25 11:21:15 2025]
+Error in rule make_vcf_to_annotate:
+    message: None
+    jobid: 1
+    input: init_input_files/multi_vcf_compilation.txt
+    output: variants_loci/loci.txt, annotation/vcf_to_annotate.vcf
+    shell:
+        
+        bash /data/cephfs-1/home/users/jali13_c/work/ACTIONABLES_INFO_GATHER/ANNOTATIONS/CALLED_VARIANTS/snakedir/scripts/extract_loci.sh "init_input_files/multi_vcf_compilation.txt" tmp.txt
+        echo "aha"
+        python3 /data/cephfs-1/home/users/jali13_c/work/ACTIONABLES_INFO_GATHER/ANNOTATIONS/CALLED_VARIANTS/snakedir/scripts/make_vcf.py tmp.txt "variants_loci/loci.txt annotation/vcf_to_annotate.vcf"
+        sed 's/;/,/g' tmp.txt |  tail -n +2 > "variants_loci/loci.txt"
+        rm tmp.txt
+        
+        (command exited with non-zero exit code)
+Complete log(s): /data/cephfs-1/work/groups/cubi/users/jali13_c/ACTIONABLES_INFO_GATHER/ANNOTATIONS/CALLED_VARIANTS/snakedir/.snakemake/log/2025-12-25T112115.505128.snakemake.log
+WorkflowError:
+At least one job did not complete successfully.

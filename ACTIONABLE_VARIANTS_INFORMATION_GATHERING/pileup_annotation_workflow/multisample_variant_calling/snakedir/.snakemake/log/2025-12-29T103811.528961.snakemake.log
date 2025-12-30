@@ -1,0 +1,37 @@
+Assuming unrestricted shared filesystem usage.
+host: hpc-cpu-226
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 30
+Rules claiming more threads will be scaled down.
+Job stats:
+job               count
+--------------  -------
+all                   1
+process_pileup        1
+total                 2
+
+Select jobs to execute...
+Execute 1 jobs...
+[Mon Dec 29 10:38:11 2025]
+localrule process_pileup:
+    input: variants_loci/loci.txt, pileup/raw_pileup.txt, /data/cephfs-1/home/users/jali13_c/work/ACTIONABLES_INFO_GATHER/ANNOTATIONS/CALLED_VARIANTS/snakedir/init_input_files/bamlist_file.txt, init_input_files/multi_vcf_compilation.txt
+    output: pileup/pileup.processed.csv
+    jobid: 1
+    reason: Missing output files: pileup/pileup.processed.csv
+    resources: tmpdir=/data/cephfs-1/home/users/jali13_c/scratch/tmp, mem_mb=50000, mem_mib=47684
+[Mon Dec 29 10:38:12 2025]
+Finished jobid: 1 (Rule: process_pileup)
+1 of 2 steps (50%) done
+Select jobs to execute...
+Execute 1 jobs...
+[Mon Dec 29 10:38:12 2025]
+localrule all:
+    input: pileup/pileup.processed.csv, annotation/annotated.vcf
+    jobid: 0
+    reason: Input files updated by another job: pileup/pileup.processed.csv
+    resources: tmpdir=/data/cephfs-1/home/users/jali13_c/scratch/tmp
+[Mon Dec 29 10:38:12 2025]
+Finished jobid: 0 (Rule: all)
+2 of 2 steps (100%) done
+Complete log(s): /data/cephfs-1/work/groups/cubi/users/jali13_c/ACTIONABLES_INFO_GATHER/ANNOTATIONS/CALLED_VARIANTS/snakedir/.snakemake/log/2025-12-29T103811.528961.snakemake.log

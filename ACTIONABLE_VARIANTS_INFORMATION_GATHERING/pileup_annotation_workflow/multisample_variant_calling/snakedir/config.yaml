@@ -1,0 +1,20 @@
+
+
+reference_genome: reference_genome
+ 
+ 
+# parameters____________________________________________________________________________________________
+snakedir: /snakedir
+snpEff_dir: /snpeff/snpEff
+snpEff_annotation_file: GRCh38.92
+bamlist_file: /snakedir/init_input_files/bamlist_file.txt
+ 
+ 
+# resources____________________________________________________________________________________________
+resources_mb:
+  make_vcf_to_annotate: 50000
+  annotate: 100000
+  pileup: 100000
+  process_pileup: 50000
+
+ 
