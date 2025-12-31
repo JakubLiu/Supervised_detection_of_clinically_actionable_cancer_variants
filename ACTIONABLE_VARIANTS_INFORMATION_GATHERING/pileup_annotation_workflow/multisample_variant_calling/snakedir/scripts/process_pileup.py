@@ -101,7 +101,7 @@ output_filepath = sys.argv[3]
 bamlist_filepath = sys.argv[4]
 multi_vcf = sys.argv[5]
   
-sample_names = pd.read_csv(multi_vcf, header=0, delimiter = ',').columns.tolist()
+sample_names = pd.read_csv(multi_vcf, header=0, delimiter = ',').columns.tolist()[1:]
 
 
 variants = pd.DataFrame(np.loadtxt(loci, delimiter = ',', skiprows = 0, dtype = str))
