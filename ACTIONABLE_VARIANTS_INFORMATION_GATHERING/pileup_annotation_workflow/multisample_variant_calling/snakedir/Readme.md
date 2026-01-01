@@ -1,3 +1,5 @@
+# Warning
+**This pipeline produces valid results only for SNV's, for indels or other variants it is not stable!**
 # How to run
 ## required input files
 **multisample calling file**
