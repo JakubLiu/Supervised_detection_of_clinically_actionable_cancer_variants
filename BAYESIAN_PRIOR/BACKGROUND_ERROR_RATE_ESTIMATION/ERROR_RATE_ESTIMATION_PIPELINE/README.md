@@ -4,11 +4,11 @@ For locus _j_ in sample _i_ and nucleotide _k_ the error rate is defined as:
 
 
 $$
-\hat{e}_{ijk} = X_{ijk}/(n_{ijk} + \epsilon)
+\hat{e}_{ijk} = X_{ijk}/(n_{ij} + \epsilon)
 $$
 
 Where, $X_{ijk}$ is the number of reads supporting nucleotide $k$ at locus $j$ in sample $i$.
-$n_{ijk}$ is the number of reads spporting nucleotide $k$, and $\epsilon$ is a pseudocount of $10^{-10}$ added to the coverage
+$n_{ij}$ is the coverage, and $\epsilon$ is a pseudocount of $10^{-10}$ added to the coverage
 to avoid division by zero errors in loci with no coverage.
 
 ## Caveats
