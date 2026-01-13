@@ -28,7 +28,7 @@ with open(processed_pileup, 'r') as fin, open(output_file, 'w') as fout:
         read_pileup = str(input_line[7])
 
         # remove all non-standars bases (because of this the error rate calculation will only work for SNVs (not indels))
-        read_pileup = "".join(char for char in read_pileup if char in standard_bases)
+        read_pileup = "".join(char.upper() for char in read_pileup if char.upper() in standard_bases)
         read_pileup_freq = Counter(read_pileup)  # returns a dict
 
         per_base_normalized_errors = {
