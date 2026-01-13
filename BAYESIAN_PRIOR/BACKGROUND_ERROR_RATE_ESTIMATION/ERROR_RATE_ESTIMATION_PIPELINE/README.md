@@ -14,6 +14,8 @@ to avoid division by zero errors in loci with no coverage.
 ## Caveats
 - results are stable only for SNVs, indels or CNVs are not supported
 - non-standard bases (like $N$) are not supported (removed in the scripts)
+- **Important**
+        - This pipeline returns one error rate estimate per locus, per base and **per sample**, but what is probably more interesting is the error rate across samples (per locus and base). This statistic can be obtained by calculating the average (or weighted) average of per-sample error rates.
 
 
 # Expected inputs
