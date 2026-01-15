@@ -1,12 +1,5 @@
 import os
 
-def out_bam(bam):
-    return os.path.join(
-        "masked",
-        os.path.basename(bam).replace(".bam", ".masked.bam")
-    )
-
-
 cf_bamlist_file = config['bamlist_file']
 cf_reference_genome = config['reference_genome']
 cf_snakedir = config['snakedir']
@@ -51,7 +44,7 @@ rule mask_lowQ_bases:
         minQ = cf_min_baseQ
     shell:
         """
-        bash {cf_snakedir}/scripts/mask_bases.exe "{input.bam}" "{output}" "{params.minQ}"
+        {cf_snakedir}/scripts/mask_bases.exe "{input.bam}" "{output}" "{params.minQ}"
         """
 
 
