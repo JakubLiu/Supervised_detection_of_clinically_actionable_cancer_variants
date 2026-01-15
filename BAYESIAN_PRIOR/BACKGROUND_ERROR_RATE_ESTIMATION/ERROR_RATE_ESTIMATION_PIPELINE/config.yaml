@@ -1,10 +1,10 @@
-reference_genome: hs37d5.fa
-bamlist_file: /ERROR_RATE_ESTIMATION_PIPELINE/bamlist_file.txt
+reference_genome: /hs37d5.fa
+bamlist_file: /bamlist_file.txt
 bamfile_extension: .dedupa.rg.sorted.bam
-gene_bedfile: /ERROR_RATE_ESTIMATION_PIPELINE/AKT1.bed
+gene_bedfile: /AKT1.bed
 gene_name: AKT1
-snakedir: /ERROR_RATE_ESTIMATION_PIPELINE
-
+snakedir: /snakedir
+minQ: 26
 
 
 # resources:
@@ -12,3 +12,5 @@ resources_mb:
   rule_pileup: 100000
   rule_process_pileup: 100000
   rule_estimate_error_rate: 100000
+  rule_mask_lowQ_bases: 100000
+  rule_create_masked_bamlist: 5000
