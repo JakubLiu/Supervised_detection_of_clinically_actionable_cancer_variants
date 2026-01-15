@@ -11,6 +11,8 @@ Where, $X_{ijk}$ is the number of reads supporting nucleotide $k$ at locus $j$ i
 $n_{ij}$ is the coverage, and $\epsilon$ is a pseudocount of $10^{-10}$ added to the coverage
 to avoid division by zero errors in loci with no coverage.
 
+The error rate estimation follows the notation found in [1].
+
 ## Caveats
 - results are stable only for SNVs, indels or CNVs are not supported
 - non-standard bases (like $N$) are not supported (removed in the scripts)
@@ -47,6 +49,42 @@ resources_mb:
   rule_process_pileup: 100000
   rule_estimate_error_rate: 100000
 ```
+
+# Prerequisites
+- python, samtools, Snakemake, gcc, the htslib C library
+## Information about the htslib C library
+https://github.com/samtools/htslib
+### Installation
+```
+git clone https://github.com/samtools/htslib.git
+```
+### Setup
+```
+cd htslib
+autoheader
+autoconf
+./configure --prefix=$HOME/htslib
+make -j4
+make install
+```
+
+### add these to your ~/.bashrc file
+```
+export PATH=$HOME/htslib/bin:$PATH
+export LD_LIBRARY_PATH=$HOME/htslib/lib:$LD_LIBRARY_PATH
+export PKG_CONFIG_PATH=$HOME/htslib/lib/pkgconfig:$PKG_CONFIG_PATH
+```
+
+##### FYI, compilation
+In the ```scripts/``` dir there already is the binary executable, but if you want to recompile the sourcecode, here is how to do it.
+```
+gcc mask_bases.c -o executor.exe $(pkg-config --cflags --libs htslib)
+```
+Usage of the executable outside of Snakemake:
+```
+./executor.exe [input bam] [output masked bam] [basecalling qual <int>]
+```
+
 
 # How to run
 The directory tree should look like this before running:
@@ -99,6 +137,10 @@ The output has the following form:
 |  Steve's lobster sample 1   |  14 |  100 | 2000 | $A$ | 32| 2| AAAAAA...| 0.00 | 0.00 | 0.001 | 0.00 |
 | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
 
+
+
+# References
+[1] Gerstung, M., Papaemmanuil, E., & Campbell, P. J. (2014). Subclonal variant calling with multiple samples and prior knowledge. Bioinformatics (Oxford, England), 30(9), 1198–1204. https://doi.org/10.1093/bioinformatics/btt750
 ## Caveat
 The error rate for the reference nucleotide is always set to $0.0$. For example:
 $ref_{j} = A$ --> $\hat{e}_{ijA} = 0.0$
