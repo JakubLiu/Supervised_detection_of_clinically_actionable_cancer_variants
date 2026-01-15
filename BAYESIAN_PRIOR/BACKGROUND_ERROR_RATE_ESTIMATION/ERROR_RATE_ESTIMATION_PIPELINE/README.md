@@ -139,8 +139,9 @@ The output has the following form:
 
 
 
-# References
-[1] Gerstung, M., Papaemmanuil, E., & Campbell, P. J. (2014). Subclonal variant calling with multiple samples and prior knowledge. Bioinformatics (Oxford, England), 30(9), 1198–1204. https://doi.org/10.1093/bioinformatics/btt750
 ## Caveat
 The error rate for the reference nucleotide is always set to $0.0$. For example:
 $ref_{j} = A$ --> $\hat{e}_{ijA} = 0.0$
+
+# References
+[1] Gerstung, M., Papaemmanuil, E., & Campbell, P. J. (2014). Subclonal variant calling with multiple samples and prior knowledge. Bioinformatics (Oxford, England), 30(9), 1198–1204. https://doi.org/10.1093/bioinformatics/btt750
