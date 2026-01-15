@@ -57,7 +57,7 @@ rule create_masked_bamlist:
         'masked/masked_bamlist.txt'
     shell:
         """
-        pritnf "%s\n" {input} > {output}
+        printf "%s\n" {input} > {output}
         """
 
 rule pileup:
