@@ -1,5 +1,12 @@
 import os
 
+def out_bam(bam):
+    return os.path.join(
+        "masked",
+        os.path.basename(bam).replace(".bam", ".masked.bam")
+    )
+
+
 cf_bamlist_file = config['bamlist_file']
 cf_reference_genome = config['reference_genome']
 cf_snakedir = config['snakedir']
@@ -25,11 +32,8 @@ BAMDICT = {
 
 rule all:
     input:
-        f'error_rate/{cf_gene_name}.error_rates.txt',
-        expand(
-            "masked/{sample}.masked.bam",
-            sample=SAMPLES
-        )
+        f'error_rate/{cf_gene_name}.Mean_error_rates.txt',
+        expand("masked/{sample}.masked.bam", sample=SAMPLES)
 
 
 
@@ -48,17 +52,35 @@ rule mask_lowQ_bases:
         """
 
 
+rule process_masked_bams:
+    resources:
+        mem_mb=config['resources_mb']['rule_process_masked_bams']
+    input:
+        'masked/{sample}.masked.bam'
+    output:
+        'masked/{sample}.masked.sorted.bam'
+    params:
+        threads = 8
+    shell:
+        """
+        bash {cf_snakedir}/scripts/process_errors.sh "{input}" "{output}" "{params.threads}"
+        """
+
+
+
 rule create_masked_bamlist:
     resources:
         mem_mb=config['resources_mb']['rule_create_masked_bamlist']
     input:
-        expand("masked/{sample}.masked.bam", sample=SAMPLES)
+        expand("masked/{sample}.masked.sorted.bam", sample = SAMPLES)
     output:
         'masked/masked_bamlist.txt'
     shell:
         """
         printf "%s\n" {input} > {output}
         """
+
+
 
 rule pileup:
     resources:
@@ -103,4 +125,17 @@ rule estimate_error_rate:
     shell:
         """
         python3 {cf_snakedir}/scripts/error_rate.py "{input}" "{output}"
+        """
+
+rule mean_error_rate:
+    resources:
+        mem_mb=config['resources_mb']['rule_mean_error_rate']
+    input:
+        bamlist_file = cf_bamlist_file,
+        err = f'error_rate/{cf_gene_name}.error_rates.txt'
+    output:
+        f'error_rate/{cf_gene_name}.Mean_error_rates.txt'
+    shell:
+        """
+        python3 {cf_snakedir}/scripts/average_error_rate.py "{input.bamlist_file}" "{input.err}" "{output}"
         """
