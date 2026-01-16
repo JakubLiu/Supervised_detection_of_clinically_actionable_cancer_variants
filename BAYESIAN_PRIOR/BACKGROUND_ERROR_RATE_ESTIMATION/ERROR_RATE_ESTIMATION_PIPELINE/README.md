@@ -21,16 +21,17 @@ The error rate estimation follows the notation found in [1].
 
 
 # Expected inputs
-1.) reference genome (and all the index files needed by samtools)
-2.) list of bamfiles (paths to the bamfiles, one path per line)
-    2.1.) the corresponding .bai files must be in the same directory
-3.) gene bedfile
+1.) reference genome (and all the index files needed by samtools)  
+2.) list of bamfiles (paths to the bamfiles, one path per line)  
+    - 2.1.) the corresponding .bai files must be in the same directory  
+3.) gene bedfile  
 ```
 chrom  start  stop
 ```
-  3.1.) the chromosome identifier must match the one used in the reference genome
-4.) gene name
+  - 3.1.) the chromosome identifier must match the one used in the reference genome
+4.) gene name  
 5.) path to the current directory
+6.) the minimum basecalling quality below which the bases will be masked as 'N'  
 
 All the inputs must be placed in the ```config.yaml``` file that has the following format:
 ```
@@ -40,7 +41,7 @@ bamfile_extension: .dedupa.rg.sorted.bam
 gene_bedfile: /ERROR_RATE_ESTIMATION_PIPELINE/AKT1.bed
 gene_name: AKT1
 snakedir: /ERROR_RATE_ESTIMATION_PIPELINE
-
+minQ: 26
 
 
 # resources:
@@ -48,6 +49,10 @@ resources_mb:
   rule_pileup: 100000
   rule_process_pileup: 100000
   rule_estimate_error_rate: 100000
+  rule_mask_lowQ_bases: 100000
+  rule_create_masked_bamlist: 5000
+  rule_process_masked_bams: 100000
+  rule_mean_error_rate: 100000
 ```
 
 # Prerequisites
