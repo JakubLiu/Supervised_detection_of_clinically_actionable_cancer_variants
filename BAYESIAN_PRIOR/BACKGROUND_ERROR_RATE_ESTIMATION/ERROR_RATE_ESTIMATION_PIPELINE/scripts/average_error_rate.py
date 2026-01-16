@@ -15,7 +15,11 @@ num_samples_per_locus = bamlist_file.shape[0]  # the average error rate across t
 
 with open(error_rate_file, 'r') as input_file, open(output_error_rate_file, 'w') as output_file:
 
+    output_file.write('chrom,start,stop,ref,coverage,mean_errA,mean_errT,mean_errG,mean_errC,mean_errN' + '\n')
+    # [chrom, start, stop, ref, mean_errA, mean_errT, mean_errG, mean_errC, mean_errN]
+
     sample_counter = sum_errA = sum_errT = sum_errG = sum_errC = sum_errN = 0 # set all the counters to 0
+    next(input_file)
 
     for line in input_file:  # loop over the input file line by line
 
@@ -26,6 +30,7 @@ with open(error_rate_file, 'r') as input_file, open(output_error_rate_file, 'w')
         start = int(line[2])
         stop = int(line[3])
         ref = str(line[4])
+        coverage = int(line[5])
         errA = float(line[8])
         errT = float(line[9])
         errG = float(line[10])
@@ -49,7 +54,7 @@ with open(error_rate_file, 'r') as input_file, open(output_error_rate_file, 'w')
             mean_errC = sum_errC/num_samples_per_locus
             mean_errN = sum_errN/num_samples_per_locus
 
-            outline = [chrom, start, stop, ref, mean_errA, mean_errT, mean_errG, mean_errC]
+            outline = [chrom, start, stop, ref, coverage, mean_errA, mean_errT, mean_errG, mean_errC, mean_errN]
             output_file.write(','.join(str(x) for x in outline) + '\n')
 
             # reset the counters
