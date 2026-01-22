@@ -32,6 +32,28 @@ def split_line(line, sample_names):
 
 
 
+def split_line2(line, sample_names):
+    n_entries_per_sample = 3
+    n_common_entries = 3
+
+    chr_pos_ref = line[:n_common_entries]
+    rest = line[n_common_entries:]
+
+    n_bams = len(sample_names)
+    splitted_rows = []
+
+    start = 0
+    end = n_entries_per_sample
+    for i in range(0, n_bams):
+        row = rest[start:end][:2]
+        row = chr_pos_ref + [sample_names[i]] + row
+        splitted_rows.append(row)
+        start = end
+        end = end + n_entries_per_sample
+        
+    return splitted_rows
+
+
 def translator(seq_in, ref):
     seq_out = ""
     n_alt = 0   # number of non-reference bases
@@ -110,7 +132,8 @@ with open(bamlist_filepath) as f:  # extract the sample names based on the bamli
     ]
 
 
-pileup = pd.DataFrame(np.loadtxt(pileup_filepath, dtype = str))
+#pileup = pd.DataFrame(np.loadtxt(pileup_filepath, dtype = str))
+pileup = pd.read_csv(pileup_filepath, dtype = str, sep = '\t', engine = 'python', on_bad_lines='skip')
 fixed_cols = ['chrom', 'start', 'ref', 'coverage']  # sample-agnostic columns
 pileup.columns = fixed_cols + list(range(len(fixed_cols),pileup.shape[1]))
 
@@ -120,21 +143,25 @@ with open(output_filepath, 'w') as fout:
     fout.write('sample,chrom,start,stop,ref,coverage,n_alt_reads,translated_sequennce' + '\n')
 
     for line in pileup.to_numpy().tolist():  # iterate over the rows of the merged df
-        sample_splitted_line = split_line(line, sample_names)  # a list of lists, each inner list is the row for one sample
+        sample_splitted_line = split_line2(line, sample_names)  # a list of lists, each inner list is the row for one sample
         
         # ['14', '105249145', 'A', '2', '.,', 'BIH_099-N1-DNA1-WES1.dedupa', 'FF', ']]']
 
         for sample in sample_splitted_line:  # iterate over each sample for the given actionable variant
+
+            
             chromosome = sample[0]
             start = int(sample[1])
             stop = start
             ref = str(sample[2])
-            coverage = int(sample[3])
-            raw_sequence = str(sample[4])
-            sampleID = str(sample[5])
+            sampleID = str(sample[3])
+            coverage = int(sample[4])
+            raw_sequence = str(sample[5])
 
             translated_sequence, n_alt = translator(raw_sequence,ref)
             
             output_line = [sampleID, chromosome, start, stop, ref, coverage, n_alt, translated_sequence]
             output_line = ','.join([str(element) for element in output_line])
+
+
             fout.write(output_line + '\n')
