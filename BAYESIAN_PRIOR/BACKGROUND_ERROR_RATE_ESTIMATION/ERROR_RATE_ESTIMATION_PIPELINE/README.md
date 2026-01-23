@@ -53,6 +53,7 @@ resources_mb:
   rule_create_masked_bamlist: 5000
   rule_process_masked_bams: 100000
   rule_mean_error_rate: 100000
+  rule_mask: 100000
 ```
 
 # Prerequisites
@@ -100,9 +101,7 @@ The directory tree should look like this before running:
 ├── bamlist_file.txt
 ├── config.yaml
 └── scripts
-    ├── error_rate.py
-    ├── pileup.sh
-    └── process_pileup.py
+    ├── ...
 ```
 
 To run type:
@@ -128,9 +127,7 @@ After succesfull completion the directory tree should look like this:
 ├── procesed_pileup
 │   └── AKT1.pileup.processed.txt
 └── scripts
-    ├── error_rate.py
-    ├── pileup.sh
-    └── process_pileup.py
+    ├── ...
 
 ```
 
