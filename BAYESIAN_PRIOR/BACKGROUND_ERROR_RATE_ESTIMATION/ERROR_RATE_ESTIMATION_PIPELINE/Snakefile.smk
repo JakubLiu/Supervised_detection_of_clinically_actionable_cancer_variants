@@ -14,6 +14,7 @@ cf_bamfile_extension = config['bamfile_extension']
 cf_gene_bedfile = config['gene_bedfile']
 cf_gene_name = config['gene_name']
 cf_min_baseQ = config['minQ']
+cf_min_mapQ = config['minMapQ']
 
 with open(cf_bamlist_file, 'r') as f:
     BAMS = [line.strip() for line in f if line.strip()]
@@ -32,11 +33,14 @@ BAMDICT = {
 
 rule all:
     input:
-        f'error_rate/{cf_gene_name}.Mean_error_rates.txt',
-        expand("masked/{sample}.masked.bam", sample=SAMPLES)
+        f'error_rate/{cf_gene_name}.error_rates.txt',
+        expand(
+            "masked/{sample}.masked.bam",
+            sample=SAMPLES
+        )
 
 
-
+'''
 rule mask_lowQ_bases:
     resources:
         mem_mb=config['resources_mb']['rule_mask_lowQ_bases']
@@ -48,23 +52,28 @@ rule mask_lowQ_bases:
         minQ = cf_min_baseQ
     shell:
         """
-        {cf_snakedir}/scripts/mask_bases.exe "{input.bam}" "{output}" "{params.minQ}"
+        bash {cf_snakedir}/scripts/mask_bases.exe "{input.bam}" "{output}" "{params.minQ}"
         """
+'''
 
 
-rule process_masked_bams:
+# mask low basecalling wuality bases as 'N'
+# remove low mapping quality reads
+rule mask:
     resources:
-        mem_mb=config['resources_mb']['rule_process_masked_bams']
+        mem_mb=config['resources_mb']['rule_mask']
     input:
-        'masked/{sample}.masked.bam'
+        bam=lambda wildcards: BAMDICT[wildcards.sample]
     output:
-        'masked/{sample}.masked.sorted.bam'
+        'masked/{sample}.masked.bam'
     params:
-        threads = 8
+        minQ = cf_min_baseQ,      # minimum basecalling quality
+        min_mapQ = cf_min_mapQ    # minimum mapping quality
     shell:
         """
-        bash {cf_snakedir}/scripts/process_errors.sh "{input}" "{output}" "{params.threads}"
+        bash {cf_snakedir}/scripts/filter_mapping_and_basecalling_quals.exe "{input.bam}" "{output}" "{params.minQ}" "{params.min_mapQ}"
         """
+
 
 
 
@@ -72,15 +81,13 @@ rule create_masked_bamlist:
     resources:
         mem_mb=config['resources_mb']['rule_create_masked_bamlist']
     input:
-        expand("masked/{sample}.masked.sorted.bam", sample = SAMPLES)
+        expand("masked/{sample}.masked.bam", sample=SAMPLES)
     output:
         'masked/masked_bamlist.txt'
     shell:
         """
-        printf "%s\n" {input} > {output}
+        pritnf "%s\n" {input} > {output}
         """
-
-
 
 rule pileup:
     resources:
@@ -125,17 +132,4 @@ rule estimate_error_rate:
     shell:
         """
         python3 {cf_snakedir}/scripts/error_rate.py "{input}" "{output}"
-        """
-
-rule mean_error_rate:
-    resources:
-        mem_mb=config['resources_mb']['rule_mean_error_rate']
-    input:
-        bamlist_file = cf_bamlist_file,
-        err = f'error_rate/{cf_gene_name}.error_rates.txt'
-    output:
-        f'error_rate/{cf_gene_name}.Mean_error_rates.txt'
-    shell:
-        """
-        python3 {cf_snakedir}/scripts/average_error_rate.py "{input.bamlist_file}" "{input.err}" "{output}"
         """
