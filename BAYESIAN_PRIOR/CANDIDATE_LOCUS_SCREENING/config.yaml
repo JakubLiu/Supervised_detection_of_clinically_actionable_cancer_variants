@@ -1,0 +1,13 @@
+reference_genome: /hs37d5.fa
+gene_bed: /gene.bed
+snakedir: /DATA_LABELING
+bamlist_file: /bamlist_file.txt
+gzvcf_list_file: /gzvcf_list_file.txt
+
+
+resources:
+  rule_identify_missing_loci: 100000
+  rule_make_bam_readcount: 100000
+  rule_process_bam_readcount: 100000
+
+
