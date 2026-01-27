@@ -8,7 +8,7 @@ output_file = sys.argv[2]
 with open(input_file, 'r') as fin, open(output_file, 'w') as fout:
  
  
-    fout.write('chrom,pos,ref,alt,coverage,ref_count,total_alt_count,A_count,C_count,G_count,N_count' + '\n')
+    fout.write('chrom,pos,ref,coverage,ref_count,total_alt_count,A_count,C_count,G_count,N_count' + '\n')
  
     for line in fin:
            
