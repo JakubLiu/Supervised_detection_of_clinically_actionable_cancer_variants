@@ -1,13 +1,17 @@
-reference_genome: /hs37d5.fa
-gene_bed: /gene.bed
+reference_genome: /DATA_LABELING/hs37d5.fa
+gene_bed: /DATA_LABEL_POLIGON/ALK.bed
 snakedir: /DATA_LABELING
-bamlist_file: /bamlist_file.txt
-gzvcf_list_file: /gzvcf_list_file.txt
+bamlist_file_tumor: /DATA_LABELING/bamlist_file_tumor.txt
+bamlist_file_normal: /DATA_LABELING/bamlist_file_normal.txt
+gzvcf_list_file: /DATA_LABELING/gzvcf_list_file.txt
 
 
 resources:
   rule_identify_missing_loci: 100000
-  rule_make_bam_readcount: 100000
-  rule_process_bam_readcount: 100000
+  rule_make_bam_readcount_tumor: 100000
+  rule_process_bam_readcount_tumor: 100000
+  rule_make_bam_readcount_normal: 100000
+  rule_process_bam_readcount_normal: 100000
+  rule_merge: 100000
 
 
