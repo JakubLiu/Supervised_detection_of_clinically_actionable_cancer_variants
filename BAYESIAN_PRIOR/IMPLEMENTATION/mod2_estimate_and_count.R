@@ -63,26 +63,27 @@ estimate_and_count <- function(TR1,   # pileup of the tumor sample in the forwar
 
 # ____________________________________________________________________________________________________________________________________________________________________________________
 # usage:
-source('mod1_make_pileups.R')
 
-pileups <- make_pileups(
-                tumor_bam_path = 'T1-DNA1-WES1.mutated.sorted.bam',
-                negative_control_bamlist = '/all_normals.txt',
-                CHROM = '7',
-                START = 55259515,
-                END = 55259515,
-                write_files = FALSE
-                    )
+#source('mod1_make_pileups.R')
 
-
-estimates <- estimate_and_count(TR1 = pileups$target_tumor_pileup_R1,
-                                TR2 = pileups$target_tumor_pileup_R2,
-                                NR1 = pileups$negative_control_pileup_R1,
-                                NR2 = pileups$negative_control_pileup_R2,
-                                alternative_allele = 'G',
-                                tumor_weight = 1.0,
-                                rho = 0.0001,
-                                write_file = FALSE)
+#pileups <- make_pileups(
+#                tumor_bam_path = 'T1-DNA1-WES1.mutated.sorted.bam',
+#                negative_control_bamlist = '/all_normals.txt',
+#                CHROM = '7',
+#                START = 55259515,
+#                END = 55259515,
+#                write_files = FALSE
+#                    )
 
 
-print(estimates)
+#estimates <- estimate_and_count(TR1 = pileups$target_tumor_pileup_R1,
+#                                TR2 = pileups$target_tumor_pileup_R2,
+#                                NR1 = pileups$negative_control_pileup_R1,
+#                                NR2 = pileups$negative_control_pileup_R2,
+#                                alternative_allele = 'G',
+#                                tumor_weight = 1.0,
+#                                rho = 0.0001,
+#                                write_file = FALSE)
+
+
+#print(estimates)
