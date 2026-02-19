@@ -66,8 +66,8 @@ estimate_and_count <- function(TR1,   # pileup of the tumor sample in the forwar
 source('mod1_make_pileups.R')
 
 pileups <- make_pileups(
-                tumor_bam_path = '/data/cephfs-1/home/users/jali13_c/work/BAYESIAN_PRIOR/TUNE_PRIOR/STEP3_SIMULATE_SNV/TRAIN/MUTATED/inserted_SNV/bwa.BIH_183-T1-DNA1-WES1.mutated.sorted.bam',
-                negative_control_bamlist = '/data/cephfs-1/home/users/jali13_c/work/BAYESIAN_PRIOR/TUNE_PRIOR/STEP3_SIMULATE_SNV/all_normals.txt',
+                tumor_bam_path = 'T1-DNA1-WES1.mutated.sorted.bam',
+                negative_control_bamlist = '/all_normals.txt',
                 CHROM = '7',
                 START = 55259515,
                 END = 55259515,
