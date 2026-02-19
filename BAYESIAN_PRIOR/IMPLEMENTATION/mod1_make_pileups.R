@@ -70,8 +70,8 @@ make_pileups <- function(tumor_bam_path, negative_control_bamlist, CHROM, START,
 # Usage:
 
 #make_pileups(
-#                tumor_bam_path = '/data/cephfs-1/home/users/jali13_c/work/BAYESIAN_PRIOR/TUNE_PRIOR/STEP3_SIMULATE_SNV/TRAIN/MUTATED/inserted_SNV/bwa.BIH_183-T1-DNA1-WES1.mutated.sorted.bam',
-#                negative_control_bamlist = '/data/cephfs-1/home/users/jali13_c/work/BAYESIAN_PRIOR/TUNE_PRIOR/STEP3_SIMULATE_SNV/all_normals.txt',
+#                tumor_bam_path = '/T1-DNA1-WES1.mutated.sorted.bam',
+#                negative_control_bamlist = '/all_normals.txt',
 #                CHROM = '7',
 #                START = 55259515,
 #                END = 55259515,
