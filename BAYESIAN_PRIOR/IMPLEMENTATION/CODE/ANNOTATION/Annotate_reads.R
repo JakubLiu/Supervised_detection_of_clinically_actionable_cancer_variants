@@ -39,11 +39,12 @@ annotate_reads <- function(bam, chrom, pos, alt, output_file_name = 0){
     return(output)
 }
 
+# USAGE:_________________________________________________________________________________________________________________________
 
-annotate_reads(
-    bam = 'T1-DNA1-WES1.mutated.sorted.bam',
-    chrom = '7',
-    pos = 55259515,
-    alt = 'G',
-    output_file_name = 'test_annotation.csv'
-)
+#annotate_reads(
+#    bam = 'T1-DNA1-WES1.mutated.sorted.bam',
+#    chrom = '7',
+#    pos = 55259515,
+#    alt = 'G',
+#    output_file_name = 'test_annotation.csv'
+#)
