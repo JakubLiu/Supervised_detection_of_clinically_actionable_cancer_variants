@@ -482,6 +482,7 @@ results <- calc_posterior(countTR1 = estimates$countTR1,
 
 # return the matched normal posterior into the output file______________________________________________________________________________________________________________________
 variant_call_report_file <- fread(output_file, sep = ',')
+variant_call_report_file <- rbind(variant_call_report_file, data.frame(names = 'matched_normal_sample', values = matched_normal_bam_path))
 variant_call_report_file <- rbind(variant_call_report_file, data.frame(names = 'posterior_in_matched_normal', values = results$posterior))
 
 if(results$posterior >= raise_normal_posterior_evidence_warning){
