@@ -1,4 +1,4 @@
-# How to run
+# How to run in tumor only mode
 
 In order to run the model in tumor only mode please run the command below:
 ```
@@ -133,4 +133,71 @@ checks if a homopolymer of the same base as the alternative, terminates exactly 
      AAAAAAATC<br>
      123456789<br>
     If the (A) homopolymer ends at position 6 and the base at position 7 is also called as A, then it is more likely to be a sequencing error.
-    
+
+
+
+# How to run in matched tumor-normal mode
+It is very similar to running in the tumor only mode.
+The only difference is to add these two options when running ```LRB_matched_tumor_normal.sh```.
+```
+--matched_normal_bam <path to the matched normal bam file> \
+--normal_posterior_evidence_threshold <threhsold (default = 0.2) [7]>
+```
+[7] The value of the matched normal posterior above which a warning of mutation evidence in the matched normal is raised.
+
+Example run:
+```
+./LRB_matched_tumor_normal.sh \
+                --tumor_bam "T1-DNA1-WES1.mutated.sorted.bam" \
+                --matched_normal_bam "N1-DNA1-WES1.bam" \
+                --negative_control_bamlist "negative_control_cohort.txt" \
+                --chromosome "7" \
+                --start "55259515" \
+                --stop "55259515" \
+                --ref_allele "T" \
+                --alt_allele "G" \
+                --prior "0.005" \
+                --posterior_cutoff "0.5" \
+                --pseudocount "0.00001" \
+                --output_call_file "output_call_file.txt" \
+                --min_mapQ "30" \
+                --min_baseQ "30" \
+                --output_read_annotation_file "output_read_annotation_file.txt" \
+                --reference_genome "hs37d5.fa" \
+                --padding_upstream "10" \
+                --padding_downstream "10" \
+                --output_genomic_context_file "output_genomic_context_file.txt" \
+                --normal_posterior_evidence_threshold "0.2"
+```
+# Output
+The output variant call report file is enriched by the path of the matched normal sample and the posterior evidence from that matched normal.
+If the normal posterior exceeds the threhsold an additional warning is added to the output file.
+
+| names | values |
+|-------|--------|
+| sample | T1-DNA1-WES1.mutated.sorted.bam |
+| chrom | 7 |
+| start | 55259515 |
+| stop | 55259515 |
+| ref | T |
+| alt | G |
+| decision | Variant |
+| posterior | 0.97620021085498 |
+| posterior_cutoff | 0.5 |
+| prior | 0.005 |
+| bayes_factor | 8162.41861540986 |
+| coverage_tumor_R1 | 219 |
+| coverage_tumor_R2 | 58 |
+| total_coverage_normals_R1 | 11613 |
+| total_coverage_normals_R2 | 6285 |
+| alt_count_tumor_R1 | 2 |
+| alt_count_tumor_R2 | 1 |
+| total_alt_count_normals_R1 | 2 |
+| total_alt_count_normals_R2 | 2 |
+| alt_rate_tumor_R1 | 0.0091324200913242 |
+| alt_rate_tumor_R2 | 0.0172413793103448 |
+| error_rate_normals_R1 | 0.000172220787048997 |
+| error_rate_normals_R2 | 0.000318217979315831 |
+| pseudocount | 1e-05 |
+| matched_normal_sample | N1-DNA1-WES1.bam |
+| posterior_in_matched_normal | 0.00518940727402747 |
