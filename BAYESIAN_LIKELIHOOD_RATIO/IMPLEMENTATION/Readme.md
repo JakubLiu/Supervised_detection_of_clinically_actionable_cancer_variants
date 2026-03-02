@@ -20,7 +20,8 @@ In order to run the model in tumor only mode please run the command below:
                 --reference_genome <path to the reference genome [3]> \
                 --padding_upstream <the number of bases upstream to extract from the reference genome> \
                 --padding_downstream <the number of bases downstream to extract from the reference genome> \
-                --output_genomic_context_file <path to the genomic context report output file>
+                --output_genomic_context_file <path to the genomic context report output file> \
+                --distinguish_strands <"YES" or "NO" (default), decide whether to account for the directionality of the reads>
 
 [1] the bam file must be sorted and indexed (.bam.bai)
 [2] a .txt file with one path per line
@@ -31,7 +32,7 @@ In order to run the model in tumor only mode please run the command below:
 ```
 Example run:
 ```
-./LRB_tumor_only.sh \
+./LRB_tumor.sh \
                 --tumor_bam "T1-DNA1-WES1.mutated.sorted.bam" \
                 --negative_control_bamlist "negative_control_cohort.txt" \
                 --chromosome "7" \
@@ -49,7 +50,8 @@ Example run:
                 --reference_genome "hs37d5.fa" \
                 --padding_upstream "10" \
                 --padding_downstream "10" \
-                --output_genomic_context_file "output_genomic_context_file.txt"
+                --output_genomic_context_file "output_genomic_context_file.txt" \
+                --distinguish_strands "YES"
 ```
 
 # Output files
@@ -58,7 +60,7 @@ Example run:
 This file return the decision on calling the variant along with the posterior, prior and Bayes factor values.
 It also contains informations about the number of alternative reads and the coverage in both forward (R1) and reverse (R2)
 directions in the tumor sample and in the negative control cohort.
-
+(the output below assumes ```--distinguish_strands "YES"```)
 
 | names | values |
 |-------|--------|
@@ -147,7 +149,7 @@ The only difference is to add these two options when running ```LRB_matched_tumo
 
 Example run:
 ```
-./LRB_matched_tumor_normal.sh \
+./LRB_matched_normal.sh \
                 --tumor_bam "T1-DNA1-WES1.mutated.sorted.bam" \
                 --matched_normal_bam "N1-DNA1-WES1.bam" \
                 --negative_control_bamlist "negative_control_cohort.txt" \
@@ -167,11 +169,13 @@ Example run:
                 --padding_upstream "10" \
                 --padding_downstream "10" \
                 --output_genomic_context_file "output_genomic_context_file.txt" \
-                --normal_posterior_evidence_threshold "0.2"
+                --normal_posterior_evidence_threshold "0.2" \
+                --distinguish_strands "YES"
 ```
 # Output
 The output variant call report file is enriched by the path of the matched normal sample and the posterior evidence from that matched normal.
 If the normal posterior exceeds the threhsold an additional warning is added to the output file.
+(the output below assumes ```--distinguish_strands "YES"```)
 
 | names | values |
 |-------|--------|
