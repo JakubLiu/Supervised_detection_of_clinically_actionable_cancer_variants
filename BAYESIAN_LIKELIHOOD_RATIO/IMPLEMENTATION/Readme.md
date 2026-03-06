@@ -2,7 +2,7 @@
 
 In order to run the model in tumor only mode please run the command below:
 ```
-./LRB_tumor_only.sh \
+./LRB_only_tumor.sh \
                 --tumor_bam <path to the tumor bam file [1]> \
                 --negative_control_bamlist <path to the list of negative control bamfiles [2]> \
                 --chromosome <chromosome> \
@@ -21,7 +21,11 @@ In order to run the model in tumor only mode please run the command below:
                 --padding_upstream <the number of bases upstream to extract from the reference genome> \
                 --padding_downstream <the number of bases downstream to extract from the reference genome> \
                 --output_genomic_context_file <path to the genomic context report output file> \
-                --distinguish_strands <"YES" or "NO" (default), decide whether to account for the directionality of the reads>
+                --distinguish_strands <"YES" or "NO" (default), decide whether to account for the directionality of the reads> \
+                --minimum_shannon_entropy <the minimum Shannon entropy that the genomic context can have, below which a warning is returned> \
+                --query_sequence <the qeury sequence (e.g. "TT"), (default is "AT")> \
+                --query_count <the number of consecutive appearances of the query sequence (default is 4)>
+
 
 [1] the bam file must be sorted and indexed (.bam.bai)
 [2] a .txt file with one path per line
@@ -32,7 +36,7 @@ In order to run the model in tumor only mode please run the command below:
 ```
 Example run:
 ```
-./LRB_tumor.sh \
+./LRB_only_tumor.sh \
                 --tumor_bam "T1-DNA1-WES1.mutated.sorted.bam" \
                 --negative_control_bamlist "negative_control_cohort.txt" \
                 --chromosome "7" \
@@ -51,7 +55,11 @@ Example run:
                 --padding_upstream "10" \
                 --padding_downstream "10" \
                 --output_genomic_context_file "output_genomic_context_file.txt" \
-                --distinguish_strands "YES"
+                --distinguish_strands "YES" \
+                --minimum_shannon_entropy "1.5" \
+                --query_sequence "AT" \
+                --query_count "4"
+
 ```
 
 # Output files
@@ -93,9 +101,9 @@ directions in the tumor sample and in the negative control cohort.
 
 This file contains information about the number of reads that have failed a given filter.
 
-| strand_bias_filter_failed | num_reads_failed_mapQ_filter | num_reads_failed_baseQ_filter | num_reads_failed_late_cycle_filter |
-|---------------------------|-----------------------------|-------------------------------|-----------------------------------|
-| FALSE                     | 0                           | 0                             | 2                                 |
+| strand_bias_filter_failed | num_reads_failed_mapQ_filter | num_reads_failed_baseQ_filter | num_reads_failed_late_cycle_filter | num_reads_failed_early_cycle_filter |
+|---------------------------|-----------------------------|-------------------------------|-----------------------------------|-----------------------------------|
+| FALSE                     | 0                           | 0                             | 2                                 | 0                                 |
 
 #### filter description
 **strand bias filter**<br>
@@ -107,18 +115,22 @@ The number of alternative reads that have a mapping quality below ```min_mapQ```
 **num_reads_failed_baseQ_filter**<br>
 The number of alternative reads in the tumor sample that have a basecalling quality (at the given locus) below ```min_baseQ```.<br>
 <br>
-**num_reads_failed_late_cycle_filter**<br>
+**num_reads_failed_early_cycle_filter**<br>
 The number of alternative alleles in the tumor sample that are in the last quarter of their respective read.<br>
 ```if(position_in_read > read_length*0.75){flag}```
+<br>
+**num_reads_failed_late_cycle_filter**<br>
+The number of alternative alleles in the tumor sample that are in the <= 3rd position of their respective read.<br>
+
 
 ### genomic context report file
 
 This file contains information about warnings about the genomic context around the target locus.
 These filters are based on the literature [4],[5],[6] and are said to be correlated with higher background error rates in Illumina sequencing platforms.
 
-| GG_motif_upstream_present | GGT_motif_upstream_present | GGC_motif_upstream_present | abnormal_GC_content_warning | preceeding_homopolymer_present |
-|---------------------------|---------------------------|---------------------------|----------------------------|-------------------------------|
-| TRUE                      | FALSE                     | TRUE                      | FALSE                      | FALSE                         |
+| GG_motif_upstream_present | GGT_motif_upstream_present | GGC_motif_upstream_present | abnormal_GC_content_warning | preceeding_homopolymer_present | low entropy | query pattern result |
+|---------------------------|---------------------------|---------------------------|----------------------------|-------------------------------|-------------------------------|-------------------------------|
+| TRUE                      | FALSE                     | TRUE                      | FALSE                      | FALSE                         | FALSE                         |  "ATATATAT present: FALSE" |
 
 [4] Meacham, F., Boffelli, D., Dhahbi, J., Martin, D. I., Singer, M., & Pachter, L. (2011). Identification and correction 
      of systematic error in high-throughput sequence data. BMC bioinformatics, 12, 451. 
@@ -140,7 +152,7 @@ checks if a homopolymer of the same base as the alternative, terminates exactly 
 
 # How to run in matched tumor-normal mode
 It is very similar to running in the tumor only mode.
-The only difference is to add these two options when running ```LRB_matched_tumor_normal.sh```.
+The only difference is to add these two options when running ```LRB_matched_normal.sh```.
 ```
 --matched_normal_bam <path to the matched normal bam file> \
 --normal_posterior_evidence_threshold <threhsold (default = 0.2) [7]>
@@ -151,7 +163,8 @@ Example run:
 ```
 ./LRB_matched_normal.sh \
                 --tumor_bam "T1-DNA1-WES1.mutated.sorted.bam" \
-                --matched_normal_bam "N1-DNA1-WES1.bam" \
+                --matched_normal_bam "N1-DNA1-WES1.rg.bqsr.basecallQ.mapQ_sorted.bam" \
+                --normal_posterior_evidence_threshold "0.1" \
                 --negative_control_bamlist "negative_control_cohort.txt" \
                 --chromosome "7" \
                 --start "55259515" \
@@ -169,8 +182,10 @@ Example run:
                 --padding_upstream "10" \
                 --padding_downstream "10" \
                 --output_genomic_context_file "output_genomic_context_file.txt" \
-                --normal_posterior_evidence_threshold "0.2" \
-                --distinguish_strands "YES"
+                --distinguish_strands "YES" \
+                --minimum_shannon_entropy "1.5" \
+                --query_sequence "AT" \
+                --query_count "4"
 ```
 # Output
 The output variant call report file is enriched by the path of the matched normal sample and the posterior evidence from that matched normal.
