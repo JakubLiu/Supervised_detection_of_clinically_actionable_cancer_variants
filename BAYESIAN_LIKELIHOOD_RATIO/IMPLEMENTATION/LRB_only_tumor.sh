@@ -106,6 +106,21 @@ while [[ $# -gt 0 ]]; do
       shift 2
       ;;
 
+    --minimum_shannon_entropy)
+      MINIMUM_SHANNON_ENTROPY="$2"
+      shift 2
+      ;;
+
+    --query_sequence)
+      QUERY_SEQUENCE="$2"
+      shift 2
+      ;;
+
+    --query_count)
+      QUERY_COUNT="$2"
+      shift 2
+      ;;
+
   esac
 done
 
@@ -129,6 +144,9 @@ if [[ "$DISTINGUISH_STRANDS" == "NO" ]]; then
                       "$REFERENCE_GENOME" \
                       "$PADDING_UPSTREAM" \
                       "$PADDING_DOWNSTREAM" \
+                      "$MINIMUM_SHANNON_ENTROPY" \
+                      "$QUERY_SEQUENCE" \
+                      "$QUERY_COUNT" \
                       "$OUTPUT_GENOMIC_CONTEXT_FILE"
 
 elif [[ "$DISTINGUISH_STRANDS" == "YES" ]]; then
@@ -151,6 +169,9 @@ elif [[ "$DISTINGUISH_STRANDS" == "YES" ]]; then
                     "$REFERENCE_GENOME" \
                     "$PADDING_UPSTREAM" \
                     "$PADDING_DOWNSTREAM" \
+                    "$MINIMUM_SHANNON_ENTROPY" \
+                    "$QUERY_SEQUENCE" \
+                    "$QUERY_COUNT" \
                     "$OUTPUT_GENOMIC_CONTEXT_FILE"
 
 else

@@ -5,6 +5,47 @@ suppressPackageStartupMessages(library(GenomicAlignments))
 suppressPackageStartupMessages(library(GenomicRanges))
 suppressPackageStartupMessages(library(data.table))
 
+
+Shannon_entropy <- function(sequence){
+    
+    sequence <- strsplit(sequence, "")[[1]]
+    A_count <- 0
+    T_count <- 0
+    G_count <- 0
+    C_count <- 0
+
+    for(base in sequence){
+        if(base == 'A'){A_count <- A_count + 1}
+        else if(base == 'T'){T_count <- T_count + 1}
+        else if(base == 'G'){G_count <- G_count + 1}
+        else if(base == 'C'){C_count <- C_count + 1}
+        else{next}
+    }
+
+    total_count <- A_count + T_count + C_count + G_count
+    H <- 0.0
+    
+    for(count in c(A_count, T_count, C_count, G_count)){
+        if(count > 0){
+            p_base <- count / total_count
+            H <- H + p_base * log2(p_base)
+        }
+    }
+
+    return(H*(-1))
+}
+
+search <- function(sequence, pattern, count){
+    
+    pattern <- as.character(pattern)
+    count <- as.numeric(count)
+    pattern <- strrep(pattern, count)
+    output <- grepl(pattern, sequence)
+    output <- paste0(pattern, ' present: ', output)
+    return(output)
+}
+
+
 make_pileups <- function(tumor_bam_path, negative_control_bamlist, CHROM, START, END, write_files = FALSE){
 
     print(paste0(
@@ -262,6 +303,7 @@ raise_warnings <- function(report_table, mapQ_thresh, baseQ_thresh, output_file_
         low_mapQ_count <- 0
         low_baseQ_count <- 0
         end_of_read_count <- 0
+        first_three_bases <- 0
 
         for(i in 1:nrow(report_table)){
 
@@ -277,13 +319,18 @@ raise_warnings <- function(report_table, mapQ_thresh, baseQ_thresh, output_file_
             if(current_read$position_within_the_read > as.numeric(current_read$read_length) * 0.75){
                 end_of_read_count <- end_of_read_count + 1
             }
+
+            if(current_read$position_within_the_read <= 3){
+                first_three_bases <- first_three_bases + 1
+            }
         }
 
         warnings <- list(
                         'strand_bias_filter_failed' = strand_bias,
                         'num_reads_failed_mapQ_filter' = low_mapQ_count,
                         'num_reads_failed_baseQ_filter' = low_baseQ_count,
-                        'num_reads_failed_late_cycle_filter' = end_of_read_count
+                        'num_reads_failed_late_cycle_filter' = end_of_read_count,
+                        'num_reads_failed_early_cycle_filter' = first_three_bases
                         )
 
         write.csv(data.frame(warnings), output_file_name, row.names = FALSE)
@@ -295,6 +342,8 @@ raise_context_warnings <- function(reference_genome, chr, pos, alt, padding_upst
                                     GC_content_min = 0.35, # lower bound of the 'normal' GC content [2]
                                     GC_content_max = 0.60, # upper bound for the 'normal' GC content [2]
                                     min_upstream_homopolymer_length = 5,  # look at the explanation below in the code
+                                    min_shannon_entropy = 1.5,  # if the Shannon entropy of the context is below this value, a warning is returned
+                                    search_pattern = c('AT', 4),  # the input is a vector c(pattern, occurence_num), e.g. c('AT', 3) --> search for 'ATATAT' in the upstream context
                                     output_file_name){  
 
     chr <- as.character(chr)
@@ -350,12 +399,22 @@ raise_context_warnings <- function(reference_genome, chr, pos, alt, padding_upst
         }
     }
 
+    low_entropy <- FALSE
+    H <- Shannon_entropy(context)
+    if(H < min_shannon_entropy){
+        low_entropy <- TRUE
+    }
+
+    query_result <- search(sequence = upstream_context, pattern = search_pattern[1], count = search_pattern[2])
+
     result <- list(
         'GG_motif_upstream_present' = GG_motif_upstream,
         'GGT_motif_upstream_present' = GGT_motif_upstream,
         'GGC_motif_upstream_present' = GGC_motif_upstream,
         'abnormal_GC_content_warning' = abnormal_GC_content,
-        'preceeding_homopolymer_present' = homopolymer_upstream
+        'preceeding_homopolymer_present' = homopolymer_upstream,
+        'low_entropy' = low_entropy,
+        'query_pattern_result' = query_result
     )
 
     write.csv(data.frame(result), output_file_name, row.names = FALSE)
@@ -394,8 +453,17 @@ output_annotation_file <- as.character(args[15])
 reference_genome <- as.character(args[16])
 padding_upstream <- as.numeric(args[17])
 padding_downstream <- as.numeric(args[18])
-output_context_warning_file <- as.character(args[19])
-raise_normal_posterior_evidence_warning <- as.character(args[20])
+
+
+minimum_shannon_entropy <- as.numeric(args[19])
+query_pattern <- as.character(args[20])
+query_count <- as.numeric(args[21])
+
+
+
+output_context_warning_file <- as.character(args[22])
+raise_normal_posterior_evidence_warning <- as.character(args[23])
+
 
 
 # variant calling for the tumor sample______________________________________________________________________________________________________
@@ -515,7 +583,9 @@ raise_context_warnings(
                             pos = start,
                             padding_downstream = padding_downstream,
                             padding_upstream = padding_upstream,
-                            output_file_name = output_context_warning_file
+                            output_file_name = output_context_warning_file,
+                            min_shannon_entropy = minimum_shannon_entropy,
+                            search_pattern = c(query_pattern, query_count)
 )
 
 # _____________________________________________________________________________________________________________________________________
