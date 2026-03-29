@@ -455,15 +455,6 @@ class Epsilon(tf.keras.Model):
     
 
 
-
-"""
-                                    NEXT STEPS
-
- - first do some syntax or cocneptual bu hunting with chat
- - validate the sanity of each individual submodels (ask chat for pointers on how to do that)
- - validate the sanity of the full model
- - simulate some data and see if there is not a structural bug
-"""
          
 
 
