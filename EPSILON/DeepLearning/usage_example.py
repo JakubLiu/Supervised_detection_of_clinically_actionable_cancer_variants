@@ -1,7 +1,7 @@
 import numpy as np
 import tensorflow as tf
 import random
-from poligon import *  # your Epsilon class and submodels
+from mod import *  # your Epsilon class and submodels
 
 # ----------------------------
 # Simulation parameters
