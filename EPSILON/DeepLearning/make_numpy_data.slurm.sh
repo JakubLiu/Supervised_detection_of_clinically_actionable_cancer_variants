@@ -9,7 +9,7 @@
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=48G
 #SBATCH --mail-type=ALL
-#SBATCH --mail-user=jakub-jozef.liu@charite.de
+#SBATCH --mail-user=***
 
 python3 make_numpy_data.py
 
