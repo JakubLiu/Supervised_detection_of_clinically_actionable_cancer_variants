@@ -2,7 +2,6 @@ import numpy as np
 import pandas as pd
 import tensorflow as tf
 import random
-from poligon import *  # for Epsilon
 
 def pad_reads_and_create_mask(reads, padded_size):
     coverage = reads.shape[0]
