@@ -402,11 +402,22 @@ class BinomialNegLogLoss(tf.keras.losses.Loss):
                 --> the coverage has no effect on the contribution to the loss
         '''
 
-        n = y_true[:, 0]
-        k = y_true[:, 1]
+        # make it robust for weird samples
+        n = tf.maximum(y_true[:, 0], 0.0)
+        k = tf.maximum(y_true[:, 1], 0.0)
+        k = tf.minimum(k, n)
 
         y_pred = tf.squeeze(y_pred, axis=-1)
         y_pred = tf.clip_by_value(y_pred, self.eps, 1.0 - self.eps)
+
+        log_likelihood = k * tf.math.log(y_pred) + (n - k) * tf.math.log(1 - y_pred)
+
+        if self.normalize:
+            log_likelihood = log_likelihood / (n + self.eps)
+
+        log_likelihood = tf.clip_by_value(log_likelihood, -1e6, 1e6) # clip extreme values to stabilize the loss
+
+        return -tf.reduce_mean(log_likelihood)
 
         log_likelihood = k * tf.math.log(y_pred) + (n - k) * tf.math.log(1 - y_pred)
 
