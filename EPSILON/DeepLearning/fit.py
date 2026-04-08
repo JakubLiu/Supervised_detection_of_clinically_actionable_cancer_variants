@@ -94,8 +94,8 @@ functional_model = tf.keras.Model(
 )
 
 functional_model.compile(
-    optimizer=tf.keras.optimizers.Adam(1e-3),
-    loss=BinomialNegLogLoss(pseudocount=1e-8, normalize_by_coverage=False),
+    optimizer=tf.keras.optimizers.AdamW(3e-5),
+    loss=BinomialNegLogLoss(pseudocount=1e-8, normalize_by_coverage=True),
     metrics=['mae']
 )
 
@@ -103,7 +103,7 @@ functional_model.compile(
 
 # ====================================================== batch the data ==========================================================================
 
-batch_size = 8
+batch_size = 32
 
 training_dataset = tf.data.Dataset.from_tensor_slices((
     {
