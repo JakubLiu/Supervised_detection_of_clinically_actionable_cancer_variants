@@ -2,8 +2,8 @@ import numpy as np
 import pandas as pd
 import tensorflow as tf
 import random
-from poligon import *  # for Epsilon
-#tf.keras.mixed_precision.set_global_policy('mixed_float16')  # for mixed precision, this should give a speedup  FUCK THAT FOR NOW
+from mod import *  # for Epsilon
+#tf.keras.mixed_precision.set_global_policy('mixed_float16')  # for mixed precision
 
 
 class PrintPredictionsCallback(tf.keras.callbacks.Callback):
