@@ -136,7 +136,7 @@ functional_model = tf.keras.Model(
 
 functional_model.compile(
     optimizer=tf.keras.optimizers.AdamW(3e-5, clipnorm = 1), 
-    loss=BinomialNegLogLoss(pseudocount=1e-5, normalize_by_coverage=True),
+    loss=ZeroInfBinomialLoss(pseudocount=1e-5, normalize_by_coverage=True),  # the zero-inflated Binomial loss
     metrics=['mae']
 )
 
@@ -193,7 +193,7 @@ val_loss = history.history['val_loss']
 np.save("train_loss.gpu.200ep.npy", train_loss)
 np.save("val_loss.gpu.200ep.npy", val_loss)
 
-functional_model.save("/data/cephfs-1/home/users/jali13_c/work/EPSILON/DEEPLEARNING/saved_models/model1.gpu.200ep.keras")
+functional_model.save("model1.keras")
 
 
 print("all done.")
