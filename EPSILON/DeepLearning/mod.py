@@ -426,7 +426,7 @@ class Epsilon(tf.keras.Model):
 
 
 
-# ========================================================= the loss function =======================================================================
+# ========================================================= the Binomial loss function =======================================================================
 
 
 class BinomialNegLogLoss(tf.keras.losses.Loss):
@@ -471,6 +471,74 @@ class BinomialNegLogLoss(tf.keras.losses.Loss):
             log_likelihood = log_likelihood / (n + self.eps)
 
         log_likelihood = tf.clip_by_value(log_likelihood, -1e6, 1e6) # clip extreme values to stabilize the loss
+
+
+        return -tf.reduce_mean(log_likelihood)
+
+
+
+# ======================================================== the zero-inflated Binomial loss function =====================================================================
+
+class ZeroInfBinomialLoss(tf.keras.losses.Loss):
+    '''
+    https://doi.org/10.1111/j.0006-341X.2000.01030.x
+    '''
+
+    def __init__(self, pseudocount=1e-8, normalize_by_coverage=False, name="binomial_nll"):
+        super().__init__(name=name)
+        self.eps = pseudocount
+        self.normalize = normalize_by_coverage
+
+    def call(self, y_true, y_pred):
+
+        '''
+        n --> the coverage (from the data)
+        k --> the alt read count (from the data)
+        pi --> the probability of k=0
+        p --> the binomial success probability
+        '''
+
+        y_true = tf.cast(y_true, tf.float64)
+        y_pred = tf.cast(y_pred, tf.float64)
+
+        # make it robust for weird samples
+        n = tf.maximum(y_true[:, 0], 0.0)
+        k = tf.maximum(y_true[:, 1], 0.0)
+        k = tf.minimum(k, n)
+
+        #y_pred = tf.clip_by_value(y_pred, self.eps, 1.0 - self.eps)
+
+        pi = y_pred[:,0]
+        p = y_pred[:,1]
+        pi = tf.clip_by_value(pi, self.eps, 1.0 - self.eps)
+        p  = tf.clip_by_value(p, self.eps, 1.0 - self.eps)
+        
+
+        # the log-likelihood if k=0
+        log_lik_zero = tf.math.log(pi + (1.0 - pi) * tf.math.exp(n*tf.math.log(1.0-p)))
+
+        # the log-likelihood if k>0
+        standard_binomial_likelihood = k*tf.math.log(p) + (n-k)*tf.math.log(1.0-p)
+        log_lik_nonzero = (tf.math.log(1.0-pi)) + standard_binomial_likelihood
+
+        # if k=0 --> log_lik_zero,    else (i.e. k>0) ----> log_lik_nonzero
+        log_likelihood = tf.where(k == 0, log_lik_zero, log_lik_nonzero)
+
+        if self.normalize:
+            log_likelihood = log_likelihood / (n + self.eps)
+
+        log_likelihood = tf.clip_by_value(log_likelihood, -1e6, 1e6) # clip extreme values to stabilize the loss
+
+        '''
+        THEN DURING INFERENCE, IN ORDER TO GET ONE ESTIMATE OF THE ERROR RATE (BINOMIAL SUCCESS PROBABILITY PARAMETER ESTIMATE) YOU NEED TO DO THE FOLLOWING:
+
+        y_pred = model(inputs, training=False)
+
+        pi = y_pred[:, 0]
+        p  = y_pred[:, 1]
+
+        error_rate_estimate = (1 - pi) * p
+        '''
 
 
         return -tf.reduce_mean(log_likelihood)
