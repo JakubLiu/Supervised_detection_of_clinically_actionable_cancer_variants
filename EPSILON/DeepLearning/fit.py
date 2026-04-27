@@ -2,8 +2,8 @@ import numpy as np
 import pandas as pd
 import tensorflow as tf
 import random
-from mod import *  # for Epsilon
-#tf.keras.mixed_precision.set_global_policy('mixed_float16')  # for mixed precision
+from poligon_ZIB_loss import *  # for Epsilon
+#tf.keras.mixed_precision.set_global_policy('mixed_float16')  # for mixed precision, this should give a speedup  FUCK THAT FOR NOW
 
 
 class PrintPredictionsCallback(tf.keras.callbacks.Callback):
@@ -25,23 +25,23 @@ class PrintPredictionsCallback(tf.keras.callbacks.Callback):
 # ===================================== load datasets =====================================================
 training_data = np.load('training_data.npz')
 
-#train_subset_size = 500
+train_subset_size = training_data["x_instructive_genomic_train"].shape[0]
 #train_subset_size = training_data["x_instructive_genomic_train"].shape[0]
 
 alt =  training_data["y_true_train"][:,1]
 cov =  training_data["y_true_train"][:,0]
-pileup_mask = (alt <= cov * 0.05) & (cov > 0) # keep only rows where the error rate is at most 5% and there is some coverage
+pileup_mask = (alt <= cov * 0.01) & (cov > 0) # keep only rows where the error rate is at most 5% and there is some coverage
 all_zero_padding_mask = training_data["x_free_sample_mask_train"].sum(axis=1) > 0 # keep only these samples that have a nonzero padding mask*
 mask = pileup_mask & all_zero_padding_mask # merge both masks
 
+padded_size = 600  # at most coverage ----> decrease this from the original 10K
 
-
-x_instructive_genomic_train = training_data["x_instructive_genomic_train"][mask]
-x_instructive_sample_train = training_data["x_instructive_sample_train"][mask]
-x_free_sample_padded_train = training_data["x_free_sample_padded_train"][mask]
-x_free_genomic_train = training_data["x_free_genomic_train"][mask]
-x_free_sample_mask_train = training_data["x_free_sample_mask_train"][mask]
-y_true_train = training_data["y_true_train"][mask]
+x_instructive_genomic_train = training_data["x_instructive_genomic_train"][mask][:train_subset_size]
+x_instructive_sample_train = training_data["x_instructive_sample_train"][mask][:train_subset_size]
+x_free_sample_padded_train = training_data["x_free_sample_padded_train"][mask][:train_subset_size, :padded_size, :]
+x_free_genomic_train = training_data["x_free_genomic_train"][mask][:train_subset_size]
+x_free_sample_mask_train = training_data["x_free_sample_mask_train"][mask][:train_subset_size, :padded_size]
+y_true_train = training_data["y_true_train"][mask][:train_subset_size]
 
 
 validation_data = np.load('validation_data.npz')
@@ -49,18 +49,19 @@ validation_data = np.load('validation_data.npz')
 
 alt =  validation_data["y_true_val"][:,1]
 cov =  validation_data["y_true_val"][:,0]
-pileup_mask = (alt <= cov * 0.05) & (cov > 0) # keep only rows where the error rate is at most 5% and there is some coverage
+pileup_mask = (alt <= cov * 0.01) & (cov > 0) # keep only rows where the error rate is at most 1% and there is some coverage
 all_zero_padding_mask = validation_data["x_free_sample_mask_val"].sum(axis=1) > 0 # keep only these samples that have a nonzero padding mask*
 mask = pileup_mask & all_zero_padding_mask  # merge both masks
 
 
+train_subset_size = validation_data["x_instructive_genomic_val"].shape[0]
 
-x_instructive_genomic_val = validation_data["x_instructive_genomic_val"][mask]
-x_instructive_sample_val = validation_data["x_instructive_sample_val"][mask]
-x_free_sample_padded_val = validation_data["x_free_sample_padded_val"][mask]
-x_free_genomic_val = validation_data["x_free_genomic_val"][mask]
-x_free_sample_mask_val = validation_data["x_free_sample_mask_val"][mask]
-y_true_val = validation_data["y_true_val"][mask]
+x_instructive_genomic_val = validation_data["x_instructive_genomic_val"][mask][:train_subset_size]
+x_instructive_sample_val = validation_data["x_instructive_sample_val"][mask][:train_subset_size]
+x_free_sample_padded_val = validation_data["x_free_sample_padded_val"][mask][:train_subset_size, :padded_size, :]
+x_free_genomic_val = validation_data["x_free_genomic_val"][mask][:train_subset_size]
+x_free_sample_mask_val = validation_data["x_free_sample_mask_val"][mask][:train_subset_size, :padded_size]
+y_true_val = validation_data["y_true_val"][mask][:train_subset_size]
 
 
 
@@ -76,7 +77,6 @@ window_size = x_free_genomic_train.shape[1]
 num_genomic_features = x_instructive_genomic_train.shape[1]
 num_features_per_sample = x_instructive_sample_train.shape[1]
 num_unique_bases = len(['A', 'T', 'G', 'C', 'N'])
-padded_size = 10000
 features_per_read = x_free_sample_padded_train.shape[2]
 
 
@@ -134,17 +134,30 @@ functional_model = tf.keras.Model(
     outputs=output
 )
 
+batch_size = 32
+
+num_epochs = 600
+batches_per_epoch = len(y_true_train) // batch_size
+
+
+learning_rate_scheduler = tf.keras.optimizers.schedules.CosineDecay(
+    initial_learning_rate=1e-4,
+    decay_steps=batches_per_epoch * num_epochs,
+    alpha=1e-6
+)
+
 functional_model.compile(
-    optimizer=tf.keras.optimizers.AdamW(3e-5, clipnorm = 1), 
-    loss=ZeroInfBinomialLoss(pseudocount=1e-5, normalize_by_coverage=True),  # the zero-inflated Binomial loss
+    optimizer=tf.keras.optimizers.AdamW(learning_rate_scheduler, clipnorm = 1), 
+    loss=ZeroInfBinomialLoss(pseudocount=1e-5, normalize_by_coverage=False),
     metrics=['mae']
 )
 
 
 
+
 # ====================================================== batch the data ==========================================================================
 
-batch_size = 32
+#batch_size = 32  # ---> declared above for the learning rate scheduler
 
 training_dataset = tf.data.Dataset.from_tensor_slices((
     {
@@ -177,23 +190,48 @@ validation_dataset = tf.data.Dataset.from_tensor_slices((
 validation_dataset = validation_dataset.shuffle(buffer_size=y_true_val.shape[0]).batch(batch_size).prefetch(tf.data.AUTOTUNE)
 
 
+'''
+# get one batch
+for x_batch, y_true_batch in training_dataset.take(1):
+    break
+
+loss_fn = ZeroInfBinomialLoss(pseudocount=1e-5, normalize_by_coverage=False)
+
+with tf.GradientTape() as tape:
+    y_pred = functional_model(x_batch, training=True)
+    loss = loss_fn(y_true_batch, y_pred)
+
+grads = tape.gradient(loss, functional_model.trainable_variables)
+
+for var, grad in zip(functional_model.trainable_variables, grads):
+    if 'final_projection' in var.path:
+       #print(var.path, tf.reduce_mean(grad).numpy(), tf.math.reduce_std(grad).numpy())
+       if 'dense_16' in var.path:
+        print("per-output gradient:", grad.numpy())
+    
+       if 'dense_16/bias' in var.path:
+           print("bias gradient:", grad.numpy())
+'''
+
+
+
 
 # ======================================================== train the model ===========================================================
+
 
 history = functional_model.fit(
     x = training_dataset,
     validation_data=validation_dataset,
-    epochs=15#,
-    #callbacks = [PrintPredictionsCallback(validation_dataset)]
+    epochs=num_epochs
     )
 
 train_loss = history.history['loss']
 val_loss = history.history['val_loss']
 
-np.save("train_loss.gpu.200ep.npy", train_loss)
-np.save("val_loss.gpu.200ep.npy", val_loss)
+np.save("train_loss.ZIB.lr_scheduler.npy", train_loss)
+np.save("val_loss.ZIB.lr_scheduler.npy", val_loss)
 
-functional_model.save("model1.keras")
+functional_model.save("model.keras")
 
 
 print("all done.")
