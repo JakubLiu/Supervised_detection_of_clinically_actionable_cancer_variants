@@ -229,7 +229,7 @@ class FinalProjection(tf.keras.Model):
             tf.keras.layers.Dropout(dropout_rate),
             tf.keras.layers.Dense(hidden_dim2, activation = hidden_activation_fun),
             tf.keras.layers.Dropout(dropout_rate),
-            tf.keras.layers.Dense(1, activation = 'sigmoid')  # the point estimator of the Binomial success probability parameter
+            tf.keras.layers.Dense(2, activation = 'sigmoid')  # the point estimator of the Binomial success probability parameter
         ])
 
     def call(self, x, training = True):
