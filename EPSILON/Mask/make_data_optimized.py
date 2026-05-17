@@ -3,7 +3,7 @@
 """
 ==================================== EXAMPLE HOW TO RUN =======================================
 
-mpirun -n 32 python3 make_data_optimized.py \
+mpirun -n 32 python3 make_data_optimized.mpi.py \
     --bamlist "/data/cephfs-1/home/users/jali13_c/work/EPSILON/MASK/make_data/single_bamlist.txt" \
     --reference_genome "/data/cephfs-1/home/users/jali13_c/work/BAYESIAN_PRIOR/TUNE_PRIOR/STEP1_PREPROCESS_BAMS/hs37d5.fa" \
     --loci_list "loci_list_minimal.csv" \
