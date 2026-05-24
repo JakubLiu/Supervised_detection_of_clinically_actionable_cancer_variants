@@ -1,0 +1,14 @@
+
+
+1.) make data from bams and reference
+2.) filter data (turn the tumor into a "negative control")
+3.) filtered data ---> filtered data in training format
+4.) dimensionality reduction on the filtered data in training format
+	- tSNE
+	- UMAP
+	- PCA
+	- SVD
+	- AE
+		- standard AE
+		- predictive AE
+5.) use the reduced dimensionality as inputs to the (linear) error rate model
