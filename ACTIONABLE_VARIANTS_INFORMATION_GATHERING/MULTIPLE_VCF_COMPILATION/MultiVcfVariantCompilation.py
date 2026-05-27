@@ -25,7 +25,7 @@ def MultiVcfVariantCompilation(vcf_list_path, output_path):
                 all_variants[variant_ID][file_idx - 1] = '1'
 
     # Write to CSV
-    header = ['variant'] + [f'file_{i}' for i in range(1, n_files + 1)]
+    header = ['variant'] + [vcf_paths[i].split('/')[-1] for i in range(0, n_files)]
     with open(output_path, 'w', newline='') as out_f:
         writer = csv.writer(out_f)
         writer.writerow(header)
