@@ -27,7 +27,7 @@ def process_region(bam, chrom, start, end, min_reads_per_UMI, min_coverage):
 
         families = defaultdict(list)
 
-        locus = pileupcolumn.reference_pos
+        locus = f'{chrom}:{pileupcolumn.reference_pos}'
         coverage = 0
 
         # here iterate over the the reads that align to a give locus
@@ -68,7 +68,7 @@ def process_region(bam, chrom, start, end, min_reads_per_UMI, min_coverage):
 
         if len(weights) > 0:
             weighted_error_rate = np.average(local_error_rates,weights=weights)  # this is the weighted mean
-            loci.append(int(locus))
+            loci.append(locus)
             error_rates.append(weighted_error_rate)
 
     bamfile.close()
