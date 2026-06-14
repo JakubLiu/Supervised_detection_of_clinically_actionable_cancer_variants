@@ -2,6 +2,19 @@ from collections import defaultdict, Counter
 import pysam
 import numpy as np
 import pandas as pd
+import argparse
+
+parser = argparse.ArgumentParser()
+
+
+parser.add_argument("--bam", required=True, type=str)
+parser.add_argument("--bed", required=True, type = str)
+parser.add_argument("--samplename", required=False, type = str, default = None)
+parser.add_argument("--min_reads_per_UMI", required=False, type = int, default=10)
+parser.add_argument("--min_depth", required=False, type = int, default=20)
+parser.add_argument("--max_PCR_error_rate", required=False, type = float, default=0.01)
+parser.add_argument("--output", required=False, type = str, default='output.csv')
+args = parser.parse_args()
 
 
 def load_bed(bed_file):
@@ -18,10 +31,10 @@ def load_bed(bed_file):
 def UMI_error_single_bam(
     bam,
     bed,
-    samplename=None,
-    min_reads_per_UMI=10,
-    min_coverage=20,
-    max_PCR_error_rate=0.1
+    min_reads_per_UMI,
+    min_coverage,
+    max_PCR_error_rate,
+    samplename=None
 ):
 
     bamfile = pysam.AlignmentFile(bam, "rb")
@@ -29,6 +42,7 @@ def UMI_error_single_bam(
 
     loci = []
     error_rates = []
+    PCR_errors = []
 
     # iterate over the regions in the bed file
     for chrom, start, end in regions:
@@ -59,7 +73,9 @@ def UMI_error_single_bam(
                 coverage += 1
 
             local_error_rates = []
+            local_PCR_errors = []
             weights = []
+            weights_PCR = []
 
             # the minimum coverage filter...................................................
             if coverage >= min_coverage:
@@ -72,6 +88,8 @@ def UMI_error_single_bam(
 
                         majority_count = Counter(bases).most_common(1)[0][1]
                         err = (len(bases) - majority_count) / len(bases)
+                        local_PCR_errors.append(err)
+                        weights_PCR.append(len(bases))
 
                         # the minimum error filter .........................................
                         """
@@ -86,11 +104,14 @@ def UMI_error_single_bam(
 
             if len(local_error_rates) > 0:
                 er = np.average(local_error_rates, weights=weights)
+                er_PCR = np.average(local_PCR_errors, weights=weights_PCR)
             else:
                 er = np.nan
+                er_PCR = np.nan
 
             loci.append(locus)
             error_rates.append(er)
+            PCR_errors.append(er_PCR)
 
     bamfile.close()
 
@@ -102,7 +123,8 @@ def UMI_error_single_bam(
 
     results = pd.DataFrame({
         "locus": loci,
-        "error_rate": error_rates,
+        "seq_error_rate": error_rates,
+        "PCR_and_seq_error_rate": PCR_errors,
         "samplename": sample
     })
 
@@ -111,21 +133,19 @@ def UMI_error_single_bam(
 
 
 
-
 if __name__ == "__main__":
 
     x = UMI_error_single_bam(
-        bam="mapped.grouped.sorted.bam",
-        bed="example.bed",
-        samplename="sample",
-        min_reads_per_UMI=10,
-        min_coverage=3,
-        max_PCR_error_rate=0.00239
+        bam=args.bam,
+        bed=args.bed,
+        samplename=args.samplename,
+        min_reads_per_UMI=args.min_reads_per_UMI,
+        min_coverage=args.min_depth,
+        max_PCR_error_rate=args.max_PCR_error_rate
     )
 
-    print(x)
 
-    x.to_csv("umi_error_results.csv", index=False)
+    x.to_csv(args.output, index=False)
 
 
 """
