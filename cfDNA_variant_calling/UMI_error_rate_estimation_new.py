@@ -54,7 +54,7 @@ def UMI_error_single_bam(
             truncate=True
         ):
 
-            locus = pileupcolumn.reference_pos
+            locus = str(chrom) + ';' + str(pileupcolumn.reference_pos)
 
             families = defaultdict(list)
             coverage = 0
@@ -73,9 +73,7 @@ def UMI_error_single_bam(
                 coverage += 1
 
             local_error_rates = []
-            local_PCR_errors = []
             weights = []
-            weights_PCR = []
 
             # the minimum coverage filter...................................................
             if coverage >= min_coverage:
@@ -88,8 +86,6 @@ def UMI_error_single_bam(
 
                         majority_count = Counter(bases).most_common(1)[0][1]
                         err = (len(bases) - majority_count) / len(bases)
-                        local_PCR_errors.append(err)
-                        weights_PCR.append(len(bases))
 
                         # the minimum error filter .........................................
                         """
@@ -102,16 +98,15 @@ def UMI_error_single_bam(
                             weights.append(len(bases))
 
 
+
             if len(local_error_rates) > 0:
                 er = np.average(local_error_rates, weights=weights)
-                er_PCR = np.average(local_PCR_errors, weights=weights_PCR)
             else:
                 er = np.nan
                 er_PCR = np.nan
 
             loci.append(locus)
             error_rates.append(er)
-            PCR_errors.append(er_PCR)
 
     bamfile.close()
 
@@ -124,7 +119,6 @@ def UMI_error_single_bam(
     results = pd.DataFrame({
         "locus": loci,
         "seq_error_rate": error_rates,
-        "PCR_and_seq_error_rate": PCR_errors,
         "samplename": sample
     })
 
