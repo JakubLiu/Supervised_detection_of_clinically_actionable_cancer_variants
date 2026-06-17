@@ -35,6 +35,24 @@ parser.add_argument('--outdir', type = str, default = 'OUTPUT_DIR')
 
 args = parser.parse_args()
 
+
+'''
+=================== structure of the loci list =====================
+
+                    chrom        pos ref
+                    0         1  231472547   G
+                    1         1  171753279   C
+                    2         1  193053827   A
+                    3         1  153177292   A
+                    4         1  145581412   G
+                    ...     ...        ...  ..
+                    9995      1  204915723   G
+                    9996      1   27874073   T
+                    9997      1  153634897   T
+                    9998      1   26584760   T
+                    9999      1  149859198   T
+'''
+
 comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
 size = comm.Get_size()
