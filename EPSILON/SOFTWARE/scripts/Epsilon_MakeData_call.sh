@@ -1,5 +1,8 @@
 #!/bin/bash
 
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 echo " "
 echo " "
 
@@ -126,7 +129,7 @@ case "$ALT_MODE" in
         # Check whether the loci file contains an alt column
         if head -n 1 "$LOCI_LIST" | grep -qw "alt"; then
 
-            PYTHON_SCRIPT="make_data_alt_specific.py"
+            PYTHON_SCRIPT="$SCRIPT_DIR/make_data_alt_specific_call.py"
 
         else
             echo " "
@@ -138,14 +141,14 @@ case "$ALT_MODE" in
             echo " "
             echo " "
 
-            PYTHON_SCRIPT="make_data_alt_generic.py"
+            PYTHON_SCRIPT="$SCRIPT_DIR/make_data_alt_generic_call.py"
             ALT_MODE="generic"
 
         fi
         ;;
 
     generic)
-        PYTHON_SCRIPT="make_data_alt_generic.py"
+        PYTHON_SCRIPT="$SCRIPT_DIR/make_data_alt_generic_call.py"
         ;;
 
     *)
@@ -184,7 +187,7 @@ mpirun -np "$NRANKS" python "$PYTHON_SCRIPT" \
 
 
 # --------------------------------- alt specific mode -------------------------------------------
-#./run_alt_extraction.sh \
+#./Epsilon_MakeData.sh \
 #    --bamlist bamlist.txt \
 #    --loci_list loci.bed \
 #    --reference_genome hg38.fa \
@@ -195,7 +198,7 @@ mpirun -np "$NRANKS" python "$PYTHON_SCRIPT" \
 
 
 # -------------------------------------- alt generic mode --------------------------------------
-#./run_alt_extraction.sh \
+#./Epsilon_MakeData.sh \
 #    --bamlist bamlist.txt \
 #    --loci_list loci.bed \
 #    --reference_genome hg38.fa \

@@ -66,7 +66,7 @@ def merge_rank_outputs(outdir, output_prefix, n_ranks, delete_temp=True):
 
 
 
-def extract_features_alt_specific(bamlist, reference_genome, loci_list, output_file_prefix="output", outdir="negative_control_data", window_size=100):
+def extract_features_alt_specific(bamlist, reference_genome, loci_list, output_file_prefix="output", outdir="tumor_data", window_size=100):
 
         comm = MPI.COMM_WORLD
         rank = comm.Get_rank()
@@ -112,6 +112,7 @@ def extract_features_alt_specific(bamlist, reference_genome, loci_list, output_f
             chrom = str(chrom)
             pos = int(pos)
             ref = ref.upper()
+            alt = alt.upper()
 
             print(f"[rank {rank}] processing {chrom}:{pos}", flush=True)
 
@@ -247,6 +248,7 @@ def extract_features_alt_specific(bamlist, reference_genome, loci_list, output_f
                     "chrom": chrom,
                     "pos": pos,
                     "ref": ref,
+                    "alt": alt,
                     "sampleID": sample_id,
 
                     "specific_alt_counts": alt_count_specific,
