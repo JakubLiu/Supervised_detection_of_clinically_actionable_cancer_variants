@@ -5,6 +5,6 @@ scripts/Epsilon_MakeData_call.sh \
     --bamlist tumor_bam.txt \
     --loci_list calling.bed.csv \
     --reference_genome hs37d5.fa \
-    --alt_mode specific \
+    --alt_mode generic \
     --nranks 8 \
-    --output_prefix tumor_data2
+    --output_prefix tumor_data3

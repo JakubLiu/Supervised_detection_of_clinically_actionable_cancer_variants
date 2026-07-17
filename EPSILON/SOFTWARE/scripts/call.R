@@ -16,7 +16,7 @@ if (dir.exists(output_dir)) {
 }
 
 
-# ==========================================================================================================================================================
+# =========================================================== setup command line arguments ========================================================================
 args <- commandArgs(trailingOnly = TRUE)
 
 # Required: fitted model RDS
@@ -92,8 +92,155 @@ if (!(alt_mode %in% c("specific", "generic"))) {
 
 # =======================================================================================================================================================
 
+
+# ========================================================== variant calling function ===================================================================
+
+variant_calling_generic_binomial <- function(alt_base, alt_base_count){
+
+    EPS_PRED <- predict(model, newdata=data, allow.new.levels=TRUE, type='response')  # the predicted error rate
+    observed_coverage <- data$coverage
+    observed_vaf <- alt_base_count/observed_coverage
+    PVALUES <- pbinom(alt_base_count - 1, size = observed_coverage, prob = EPS_PRED, lower.tail = FALSE)
+    PVALUES_ADJUSTED <- p.adjust(PVALUES, method = multiple_testing_correction_method, n = length(PVALUES))
+    significant_idx <- which(PVALUES_ADJUSTED < significance_level_alpha)
+    sig_data <- data[significant_idx,]
+
+
+    vcf <- data.table(
+    CHROM = sig_data$chrom,
+    POS = sig_data$pos,
+    ID = sig_data$sampleID,
+    REF = sig_data$ref,
+    ALT = rep(alt_base, length(significant_idx)),
+    PVAL_ADJ = PVALUES_ADJUSTED[significant_idx],
+    PVAL_RAW = PVALUES[significant_idx],
+    SIG_LEVEL = rep(significance_level_alpha, length(significant_idx)),
+    INFO = sprintf(
+        "DP=%d;AD=%d;AF=%.6f",
+        sig_data$coverage,
+        alt_base_count[significant_idx],
+        alt_base_count[significant_idx] / sig_data$coverage
+     )
+    )
+
+    return(vcf)
+}
+
+
+
+
+variant_calling_generic_bayesian <- function(alt_base, alt_base_count){
+
+    observed_coverage <- data$coverage
+    observed_vaf <- alt_base_count/observed_coverage
+    EPS_PRED <- predict(model, newdata=data, allow.new.levels=TRUE, type='response')
+    P_H0 <- dbinom(x=alt_base_count, size=observed_coverage, prob=EPS_PRED, log=TRUE)
+    P_H1 <- dbinom(x=alt_base_count, size=observed_coverage, prob=observed_vaf, log=TRUE)
+    BF <- exp(P_H1 - P_H0)
+    POSTERIOR <- BF * prior / (BF * prior + (1 - prior))
+    significant_idx <- which(POSTERIOR > posterior_cutoff)
+    sig_data <- data[significant_idx,]
+
+    vcf <- data.table(
+    CHROM = sig_data$chrom,
+    POS = sig_data$pos,
+    ID = sig_data$sampleID,
+    REF = sig_data$ref,
+    ALT = rep(alt_base, length(significant_idx)),
+    PRIOR = rep(prior, length(significant_idx)),
+    POSTERIOR = POSTERIOR[significant_idx],
+    POSTERIOR_CUTOFF = rep(posterior_cutoff, length(significant_idx)),
+    INFO = sprintf(
+        "DP=%d;AD=%d;AF=%.6f",
+        sig_data$coverage,
+        alt_base_count[significant_idx],
+        alt_base_count[significant_idx] / sig_data$coverage
+     )
+    )
+
+    return(vcf)
+    
+}
+
+
+variant_calling_specific_binomial <- function(){
+
+    EPS_PRED <- predict(model, newdata=data, allow.new.levels=TRUE, type='response')  # the predicted error rate
+    observed_coverage <- data$coverage
+    observed_alt_count <- data$specific_alt_counts
+    observed_vaf <- observed_alt_count/observed_coverage
+    alt <- data$alt
+    PVALUES <- pbinom(observed_alt_count - 1, size = observed_coverage, prob = EPS_PRED, lower.tail = FALSE)
+    PVALUES_ADJUSTED <- p.adjust(PVALUES, method = multiple_testing_correction_method, n = length(PVALUES))
+    significant_idx <- which(PVALUES_ADJUSTED < significance_level_alpha)
+    sig_data <- data[significant_idx,]
+    
+
+    vcf <- data.table(
+    CHROM = sig_data$chrom,
+    POS = sig_data$pos,
+    ID = sig_data$sampleID,
+    REF = sig_data$ref,
+    ALT = alt[significant_idx],
+    PVAL_ADJ = PVALUES_ADJUSTED[significant_idx],
+    PVAL_RAW = PVALUES[significant_idx],
+    SIG_LEVEL = rep(significance_level_alpha, length(significant_idx)),
+    INFO = sprintf(
+        "DP=%d;AD=%d;AF=%.6f",
+        sig_data$coverage,
+        observed_alt_count[significant_idx],
+        observed_alt_count[significant_idx] / sig_data$coverage
+     )
+    )
+
+    
+    return(vcf)
+
+}
+
+
+
+variant_calling_specific_bayesian <- function(){
+
+    observed_coverage <- data$coverage
+    observed_alt_count <- data$specific_alt_counts
+    observed_vaf <- observed_alt_count/observed_coverage
+    alt <- data$alt
+    EPS_PRED <- predict(model, newdata=data, allow.new.levels=TRUE, type='response')
+    P_H0 <- dbinom(x=observed_alt_count, size=observed_coverage, prob=EPS_PRED, log=TRUE)
+    P_H1 <- dbinom(x=observed_alt_count, size=observed_coverage, prob=observed_vaf, log=TRUE)
+    BF <- exp(P_H1 - P_H0)
+    POSTERIOR <- BF * prior / (BF * prior + (1 - prior))
+    significant_idx <- which(POSTERIOR > posterior_cutoff)
+    sig_data <- data[significant_idx,]
+
+    vcf <- data.table(
+    CHROM = sig_data$chrom,
+    POS = sig_data$pos,
+    ID = sig_data$sampleID,
+    REF = sig_data$ref,
+    ALT = alt[significant_idx],
+    PRIOR = rep(prior, length(significant_idx)),
+    POSTERIOR = POSTERIOR[significant_idx],
+    POSTERIOR_CUTOFF = rep(posterior_cutoff, length(significant_idx)),
+    INFO = sprintf(
+        "DP=%d;AD=%d;AF=%.6f",
+        sig_data$coverage,
+        observed_alt_count[significant_idx],
+        observed_alt_count[significant_idx] / sig_data$coverage
+     )
+    )
+
+    return(vcf)
+    
+}
+
+
+
+# =======================================================================================================================================================
 model <- readRDS(fitted_model_rds)
 data <- fread(input_data, head = TRUE, sep = ',')
+data <- data[data$general_alt_counts > 0,]   # this stops potential 0 alt calling with a strong prior
 
 # optionally scale the predictors
 script_path <- sub("^--file=", "", commandArgs()[grep("^--file=", commandArgs())])
@@ -114,121 +261,86 @@ if (file.exists(scaling_file)) {
 
 
 if(alt_mode == 'specific'){
-    observed_alt_count <- data$specific_alt_counts
-    alt <- data$alt
-}else{
-    observed_alt_count <- data$general_alt_counts
-    alt <- rep('.', length(observed_alt_count))
+    
+    if(variant_calling_mode == 'binomial_test'){
+        
+        res_vcf <- variant_calling_specific_binomial()
+        header <- c(
+            "##fileformat=VCFv4.3",
+            "##source=Epsilon Binomial test mode (specific alternative reads)",
+            '##INFO=<ID=DP,Number=1,Type=Integer,Description="Total Depth">',
+            '##INFO=<ID=AD,Number=1,Type=Integer,Description="Alternate Allele Count">',
+            '##INFO=<ID=AF,Number=1,Type=Float,Description="Observed Variant Allele Fraction">',
+            "#CHROM\tPOS\tID\tREF\tALT\tPVAL_ADJ\tPVAL_RAW\tSIG_LEVEL\tINFO")
+
+        writeLines(header, output_vcf)
+        fwrite(res_vcf,file = output_vcf,append = TRUE,sep = "\t",quote = FALSE,col.names = FALSE)
+
+    }else if(variant_calling_mode == 'bayes_posterior'){
+        
+        res_vcf <- variant_calling_specific_bayesian()
+        header <- c(
+            "##fileformat=VCFv4.3",
+            "##source=Epsilon Bayesian posterior mode (specific alternative reads)",
+            '##INFO=<ID=DP,Number=1,Type=Integer,Description="Total Depth">',
+            '##INFO=<ID=AD,Number=1,Type=Integer,Description="Alternate Allele Count">',
+            '##INFO=<ID=AF,Number=1,Type=Float,Description="Observed Variant Allele Fraction">',
+            "#CHROM\tPOS\tID\tREF\tALT\tPRIOR\tPOSTERIOR\tPOSTERIOR_CUTOFF\tINFO")
+            
+        writeLines(header, output_vcf)
+        fwrite(res_vcf,file = output_vcf,append = TRUE,sep = "\t",quote = FALSE,col.names = FALSE)
+    }
+
+   
+
+}else if (alt_mode == 'generic'){
+    
+    if(variant_calling_mode == 'binomial_test'){
+
+        res_vcf_A <- variant_calling_generic_binomial(alt_base = 'A', alt_base_count = data$alt_A)
+        res_vcf_T <- variant_calling_generic_binomial(alt_base = 'T', alt_base_count = data$alt_T)
+        res_vcf_G <- variant_calling_generic_binomial(alt_base = 'G', alt_base_count = data$alt_G)
+        res_vcf_C <- variant_calling_generic_binomial(alt_base = 'C', alt_base_count = data$alt_C)
+        res_vcf <- data.frame(rbind(res_vcf_A, res_vcf_C, res_vcf_G, res_vcf_T))
+
+         header <- c(
+            "##fileformat=VCFv4.3",
+            "##source=Epsilon Binomial test mode (generic alternative reads)",
+            '##INFO=<ID=DP,Number=1,Type=Integer,Description="Total Depth">',
+            '##INFO=<ID=AD,Number=1,Type=Integer,Description="Alternate Allele Count">',
+            '##INFO=<ID=AF,Number=1,Type=Float,Description="Observed Variant Allele Fraction">',
+            "#CHROM\tPOS\tID\tREF\tALT\tPVAL_ADJ\tPVAL_RAW\tSIG_LEVEL\tINFO"
+            )
+
+        writeLines(header, output_vcf)
+        fwrite(res_vcf,file = output_vcf,append = TRUE,sep = "\t",quote = FALSE,col.names = FALSE)
+
+
+
+    }else if (variant_calling_mode == 'bayes_posterior'){
+
+        res_vcf_A <- variant_calling_generic_bayesian(alt_base = 'A', alt_base_count = data$alt_A)
+        res_vcf_T <- variant_calling_generic_bayesian(alt_base = 'T', alt_base_count = data$alt_T)
+        res_vcf_G <- variant_calling_generic_bayesian(alt_base = 'G', alt_base_count = data$alt_G)
+        res_vcf_C <- variant_calling_generic_bayesian(alt_base = 'C', alt_base_count = data$alt_C)
+        res_vcf <- data.frame(rbind(res_vcf_A, res_vcf_C, res_vcf_G, res_vcf_T))
+
+        header <- c(
+            "##fileformat=VCFv4.3",
+            "##source=Epsilon Bayesian posterior mode (generic alternative reads)",
+            '##INFO=<ID=DP,Number=1,Type=Integer,Description="Total Depth">',
+            '##INFO=<ID=AD,Number=1,Type=Integer,Description="Alternate Allele Count">',
+            '##INFO=<ID=AF,Number=1,Type=Float,Description="Observed Variant Allele Fraction">',
+            "#CHROM\tPOS\tID\tREF\tALT\tPRIOR\tPOSTERIOR\tPOSTERIOR_CUTOFF\tINFO"
+            )
+
+        writeLines(header, output_vcf)
+        fwrite(res_vcf,file = output_vcf,append = TRUE,sep = "\t",quote = FALSE,col.names = FALSE)
+
+    }
 }
 
 
-EPS_PRED <- predict(model, newdata=data, allow.new.levels=TRUE, type='response')  # the predicted error rate
-observed_coverage <- data$coverage
-observed_vaf <- observed_alt_count/observed_coverage
 
-
-if(variant_calling_mode == 'binomial_test'){
-    PVALUES <- pbinom(
-    observed_alt_count - 1,
-    size = observed_coverage,
-    prob = EPS_PRED,
-    lower.tail = FALSE)
-
-    PVALUES_ADJUSTED <- p.adjust(PVALUES, method = multiple_testing_correction_method, n = length(PVALUES))
-    significant_idx <- which(PVALUES_ADJUSTED < significance_level_alpha)
-    sig_data <- data[significant_idx,]
-    
-    header <- c(
-    "##fileformat=VCFv4.3",
-    "##source=Epsilon Binomial test mode",
-    '##INFO=<ID=DP,Number=1,Type=Integer,Description="Total Depth">',
-    '##INFO=<ID=AD,Number=1,Type=Integer,Description="Alternate Allele Count">',
-    '##INFO=<ID=AF,Number=1,Type=Float,Description="Observed Variant Allele Fraction">',
-    "#CHROM\tPOS\tID\tREF\tALT\tPVAL_ADJ\tPVAL_RAW\tSIG_LEVEL\tINFO"
-    )
-    
-    writeLines(header, output_vcf)
-
-
-    vcf <- data.table(
-    CHROM = sig_data$chrom,
-    POS = sig_data$pos,
-    ID = sig_data$sampleID,
-    REF = sig_data$ref,
-    ALT = alt[significant_idx],
-    PVAL_ADJ = PVALUES_ADJUSTED[significant_idx],
-    PVAL_RAW = PVALUES[significant_idx],
-    SIG_LEVEL = rep(significance_level_alpha, length(significant_idx)),
-    INFO = sprintf(
-        "DP=%d;AD=%d;AF=%.6f",
-        sig_data$coverage,
-        observed_alt_count[significant_idx],
-        observed_alt_count[significant_idx] / sig_data$coverage
-     )
-    )
-
-    fwrite(
-        vcf,
-        file = output_vcf,
-        append = TRUE,
-        sep = "\t",
-        quote = FALSE,
-        col.names = FALSE
-    )
-
-    print(paste0('Output vcf written to: ', output_vcf))
-
-}else if (variant_calling_mode == 'bayes_posterior'){
-
-    P_H0 <- dbinom(x=observed_alt_count, size=observed_coverage, prob=EPS_PRED, log=TRUE)
-    P_H1 <- dbinom(x=observed_alt_count, size=observed_coverage, prob=observed_vaf, log=TRUE)
-    BF <- exp(P_H1 - P_H0)
-    POSTERIOR <- BF * prior / (BF * prior + (1 - prior))
-    significant_idx <- which(POSTERIOR > posterior_cutoff)
-    sig_data <- data[significant_idx,]
-
-    header <- c(
-    "##fileformat=VCFv4.3",
-    "##source=Epsilon Bayesian posterior mode",
-    '##INFO=<ID=DP,Number=1,Type=Integer,Description="Total Depth">',
-    '##INFO=<ID=AD,Number=1,Type=Integer,Description="Alternate Allele Count">',
-    '##INFO=<ID=AF,Number=1,Type=Float,Description="Observed Variant Allele Fraction">',
-    "#CHROM\tPOS\tID\tREF\tALT\tPRIOR\tPOSTERIOR\tPOSTERIOR_CUTOFF\tINFO"
-    )
-
-    writeLines(header, output_vcf)
-
-    vcf <- data.table(
-    CHROM = sig_data$chrom,
-    POS = sig_data$pos,
-    ID = sig_data$sampleID,
-    REF = sig_data$ref,
-    ALT = alt[significant_idx],
-    PRIOR = rep(prior, length(significant_idx)),
-    POSTERIOR = POSTERIOR[significant_idx],
-    POSTERIOR_CUTOFF = rep(posterior_cutoff, length(significant_idx)),
-    INFO = sprintf(
-        "DP=%d;AD=%d;AF=%.6f",
-        sig_data$coverage,
-        observed_alt_count[significant_idx],
-        observed_alt_count[significant_idx] / sig_data$coverage
-     )
-    )
-
-    fwrite(
-        vcf,
-        file = output_vcf,
-        append = TRUE,
-        sep = "\t",
-        quote = FALSE,
-        col.names = FALSE
-    )
-
-    print(paste0('Output vcf written to: ', output_vcf))
-
-
-
-
-}
 
 

@@ -141,7 +141,11 @@ def extract_features_alt_generic(bamlist, reference_genome, loci_list, output_fi
 
                 # set the variables for the current bam
                 ref_count = 0
-                alt_count_generic = 0   # any non-reference base
+                alt_count_generic = 0
+                alt_A = 0
+                alt_C = 0
+                alt_G = 0
+                alt_T = 0
 
                 mapqs = []   # this is a list of all mapqs of all reads that have mapped to the current pos in the current bam
                 baseqs = []   # this is a list of all baseqs at positions of reads that have mapped to the current pos in the current bam
@@ -213,9 +217,18 @@ def extract_features_alt_generic(bamlist, reference_genome, loci_list, output_fi
                         else:
                             ref_R2 += 1
 
-                    elif base != ref:
+                    else:
 
-                        alt_count_generic += 1  # the general alt count (just used for coverage calculation)
+                        alt_count_generic += 1
+
+                        if base == "A":
+                            alt_A += 1
+                        elif base == "C":
+                            alt_C += 1
+                        elif base == "G":
+                            alt_G += 1
+                        elif base == "T":
+                            alt_T += 1
 
             
 
@@ -241,6 +254,10 @@ def extract_features_alt_generic(bamlist, reference_genome, loci_list, output_fi
                     "sampleID": sample_id,
                     "general_alt_counts" : alt_count_generic,
                     "ref_counts": ref_count,
+                    "alt_A": alt_A,
+                    "alt_C": alt_C,
+                    "alt_G": alt_G,
+                    "alt_T": alt_T,
 
                     "coverage": coverage,
 
