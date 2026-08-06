@@ -332,10 +332,6 @@ for epoch in range(epochs):
     print("\nEpoch", epoch+1)
 
 
-    # --------------------
-    # TRAIN
-    # --------------------
-
     train_losses = []
 
     for reads, context, y in train_dataset:
@@ -382,10 +378,6 @@ for epoch in range(epochs):
     )
 
 
-    # --------------------
-    # EARLY STOPPING
-    # --------------------
-
     if mean_val_loss < best_val_loss:
 
         print("Validation improved")
@@ -412,3 +404,8 @@ for epoch in range(epochs):
 
             print("Early stopping")
             break
+
+train_loss = np.array(train_losses, dtype = np.float32)
+validation_loss = np.array(val_losses, dtype = np.float32)
+np.savetxt('train_loss.txt', train_loss)
+np.savetxt('validation_loss.txt', validation_loss)
