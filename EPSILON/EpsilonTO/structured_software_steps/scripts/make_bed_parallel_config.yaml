@@ -1,0 +1,7 @@
+reference_genome: "hs37d5.fa"
+reference_genome_fai : "hs37d5.fa.fai"
+bamfile: "sample1.bam"
+chromosome: "1"
+chunk_size: 5000000
+min_coverage: 30
+output: "merged.processed.mpileup.txt"
