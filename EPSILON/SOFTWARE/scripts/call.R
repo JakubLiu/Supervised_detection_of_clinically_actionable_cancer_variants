@@ -1,5 +1,6 @@
 library(data.table)
 library(MASS)
+library(stringr)
 library(glmmTMB)
 
 # this is for later, when the output is a VCF, for now I will just print the variant to stdout
@@ -274,6 +275,15 @@ if(alt_mode == 'specific'){
             "#CHROM\tPOS\tID\tREF\tALT\tPVAL_ADJ\tPVAL_RAW\tSIG_LEVEL\tINFO")
 
         writeLines(header, output_vcf)
+
+        alt_count <- as.numeric(str_extract(res_vcf$INFO, "(?<=AD=)\\d+"))
+        mask1 <- alt_count > 0
+        mask2 <- res_vcf$REF != res_vcf$ALT
+        mask3 <- nchar(res_vcf$REF) == 1
+        mask4 <- nchar(res_vcf$ALT) == 1
+        mask <- mask1 & mask2 & mask3 & mask4
+        res_vcf <- res_vcf[mask,]
+
         fwrite(res_vcf,file = output_vcf,append = TRUE,sep = "\t",quote = FALSE,col.names = FALSE)
 
     }else if(variant_calling_mode == 'bayes_posterior'){
@@ -288,6 +298,15 @@ if(alt_mode == 'specific'){
             "#CHROM\tPOS\tID\tREF\tALT\tPRIOR\tPOSTERIOR\tPOSTERIOR_CUTOFF\tINFO")
             
         writeLines(header, output_vcf)
+
+        alt_count <- as.numeric(str_extract(res_vcf$INFO, "(?<=AD=)\\d+"))
+        mask1 <- alt_count > 0
+        mask2 <- res_vcf$REF != res_vcf$ALT
+        mask3 <- nchar(res_vcf$REF) == 1
+        mask4 <- nchar(res_vcf$ALT) == 1
+        mask <- mask1 & mask2 & mask3 & mask4
+        res_vcf <- res_vcf[mask,]
+
         fwrite(res_vcf,file = output_vcf,append = TRUE,sep = "\t",quote = FALSE,col.names = FALSE)
     }
 
@@ -313,6 +332,15 @@ if(alt_mode == 'specific'){
             )
 
         writeLines(header, output_vcf)
+
+        alt_count <- as.numeric(str_extract(res_vcf$INFO, "(?<=AD=)\\d+"))
+        mask1 <- alt_count > 0
+        mask2 <- res_vcf$REF != res_vcf$ALT
+        mask3 <- nchar(res_vcf$REF) == 1
+        mask4 <- nchar(res_vcf$ALT) == 1
+        mask <- mask1 & mask2 & mask3 & mask4
+        res_vcf <- res_vcf[mask,]
+
         fwrite(res_vcf,file = output_vcf,append = TRUE,sep = "\t",quote = FALSE,col.names = FALSE)
 
 
@@ -335,6 +363,15 @@ if(alt_mode == 'specific'){
             )
 
         writeLines(header, output_vcf)
+
+        alt_count <- as.numeric(str_extract(res_vcf$INFO, "(?<=AD=)\\d+"))
+        mask1 <- alt_count > 0
+        mask2 <- res_vcf$REF != res_vcf$ALT
+        mask3 <- nchar(res_vcf$REF) == 1
+        mask4 <- nchar(res_vcf$ALT) == 1
+        mask <- mask1 & mask2 & mask3 & mask4
+        res_vcf <- res_vcf[mask,]
+
         fwrite(res_vcf,file = output_vcf,append = TRUE,sep = "\t",quote = FALSE,col.names = FALSE)
 
     }
